@@ -1,6 +1,7 @@
 services:
   bionic:
-    command: /package.sh
+    command: |
+      sh -c 'cp -r /root/output/* /output/'
     environment:
       - R_VERSION=${R_VERSION}
     build:
@@ -8,6 +9,7 @@ services:
       dockerfile: dockerfiles/bionic/Dockerfile
       args:
         R_VERSION: ${R_VERSION}
+      target: package
     image: r-hub/r-glibc-bionic
     volumes:
       - ./output:/output

@@ -142,15 +142,41 @@ RUN echo "_R_SHLIB_STRIP_=${_R_SHLIB_STRIP_-true}" \
 # strip
 RUN for f in `find /opt/R/${R_VERSION}-glibc/ -executable -type f `; do strip -x "$f" || true; done
 
-FROM ubuntu:18.04 AS final
+FROM ubuntu:18.04 AS test
 COPY --from=build /opt/R /opt/R
 
-USER root
-WORKDIR /root
+# TODO
 
-ENV TZ=UTC
+FROM ubuntu:18.04 AS package
+ARG R_VERSION
+COPY --from=build /opt/R /opt/R
 
-# Some of this info is shown on the GH packages pages
-LABEL org.opencontainers.image.source="https://github.com/r-hub/r-musl"
-LABEL org.opencontainers.image.description="Self-contained R build for GNU/Linux"
-LABEL org.opencontainers.image.authors="https://github.com/gaborcsardi"
+RUN tar czf r-${R_VERSION}-glibc.tar.gz /opt/R/${R_VERSION}-glibc/ && \
+    mkdir -p /root/output && \
+    mv r-${R_VERSION}-glibc.tar.gz /root/output
+
+RUN apt-get update && \
+    apt-get install -y gettext-base curl
+
+RUN curl -LO "https://github.com/goreleaser/nfpm/releases/download/v2.41.1/nfpm_2.41.1_$(dpkg --print-architecture).deb" && \
+    apt install -y ./nfpm_*.deb && \
+    rm nfpm_*.deb
+
+COPY tools/package-deb.yml.in package-deb.yml.in
+RUN export R_VERSION=${R_VERSION} && \
+    export ARCH="`dpkg --print-architecture`" && \
+    cat package-deb.yml.in | envsubst | tee package-deb.yml
+RUN nfpm package \
+      -f package-deb.yml \
+      -p deb \
+      -t /root/output
+
+COPY tools/package-rpm.yml.in package-rpm.yml.in
+RUN export R_VERSION=${R_VERSION} && \
+    export ARCH="`dpkg --print-architecture`" && \
+    cat package-rpm.yml.in | envsubst | tee package-rpm.yml
+RUN mkdir -p /root/output && \
+    nfpm package \
+      -f package-rpm.yml \
+      -p rpm \
+      -t /root/output

@@ -1,0 +1,20 @@
+name: r-${R_VERSION}-glibc
+version: 1
+version_schema: none
+section: gnu-r
+arch: $ARCH
+priority: optional
+maintainer: Posit Software, PBC <https://github.com/r-hub/r-glibc>
+description: |
+  GNU R statistical computation and graphics system
+vendor: Posit Software, PBC
+homepage: https://github.com/r-hub/r-glibc
+license: GPL-2
+deb:
+  fields:
+    Bugs: https://github.com/r-hub/r-glibc/issues
+depends:
+- libc6
+contents:
+- src: /opt/R/${R_VERSION}-glibc
+  dst: /opt/R/${R_VERSION}-glibc
