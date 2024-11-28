@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/bionic/Dockerfile
+      args:
+        R_VERSION: ${R_VERSION}
     image: r-hub/r-glibc-bionic
     volumes:
       - ./output:/output

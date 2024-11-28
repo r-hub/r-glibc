@@ -9,9 +9,6 @@ RUN apt-get update && \
     apt-get install -y build-essential g++ gfortran curl \
     pkg-config
 
-RUN curl -LO https://cran.r-project.org/src/base/R-4/R-4.4.2.tar.gz
-RUN tar xzf R-4.4.2.tar.gz
-
 ENV TZ=UTC
 
 RUN apt-get update && \
@@ -92,18 +89,23 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libexpat.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libpng16.a` /opt/r-lib/lib/
 
+ARG R_VERSION
+
 # embed which into R, because it is very much needed, but some
 # minimal Docker images don't have it
 RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/which-r-2.21-r4.apk && \
     tar xzf which-*.apk opt/r-lib/bin/which && \
-    mkdir -p /opt/R/4.4.2-static/lib/R/tools && \
-    cp opt/r-lib/bin/which /opt/R/4.4.2-static/lib/R/tools
+    mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/tools && \
+    cp opt/r-lib/bin/which /opt/R/${R_VERSION}-glibc/lib/R/tools
 
-COPY dockerfiles/bionic/R-4.4.2.patch .
-RUN cd R-4.4.2 && patch -p1 < ../R-4.4.2.patch
-RUN cd R-4.4.2 && \
-    PATH="/opt/R/4.4.2-static/lib/R/tools:/opt/r-lib/bin:$PATH" \
-    ./configure --with-internal-tzcode --prefix=/opt/R/4.4.2-static --with-x=no \
+RUN curl -LO https://cran.r-project.org/src/base/R-4/R-${R_VERSION}.tar.gz
+RUN tar xzf R-${R_VERSION}.tar.gz
+
+COPY dockerfiles/bionic/R-${R_VERSION}.patch .
+RUN cd R-${R_VERSION} && patch -p1 < ../R-${R_VERSION}.patch
+RUN cd R-${R_VERSION} && \
+    PATH="/opt/R/${R_VERSION}-glibc/lib/R/tools:/opt/r-lib/bin:$PATH" \
+    ./configure --with-internal-tzcode --prefix=/opt/R/${R_VERSION}-glibc --with-x=no \
     --with-blas --with-lapack --enable-BLAS-shlib=no \
     --with-included-gettext \
     --with-static-cairo \
@@ -112,19 +114,19 @@ RUN cd R-4.4.2 && \
     CPPFLAGS=-I/opt/r-lib/include \
     LDFLAGS=-L/opt/r-lib/lib
 
-RUN cd R-4.4.2 && make
-RUN cd R-4.4.2 && make install
+RUN cd R-${R_VERSION} && make
+RUN cd R-${R_VERSION} && make install
 
 # patch to embed CA certs
-RUN curl -L https://curl.se/ca/cacert.pem -o /opt/R/4.4.2-static/lib/R/share/curl-ca-bundle.crt
-RUN echo "CURL_CA_BUNDLE=${CURL_CA_BUNDLE-/opt/R/4.4.2-static/lib/R/share/curl-ca-bundle.crt}" \
-    >> /opt/R/4.4.2-static/lib/R/etc/Renviron
+RUN curl -L https://curl.se/ca/cacert.pem -o /opt/R/${R_VERSION}-glibc/lib/R/share/curl-ca-bundle.crt
+RUN echo "CURL_CA_BUNDLE=${CURL_CA_BUNDLE-/opt/R/${R_VERSION}-glibc/lib/R/share/curl-ca-bundle.crt}" \
+    >> /opt/R/${R_VERSION}-glibc/lib/R/etc/Renviron
 
 # strip
-RUN for f in `find /opt/R/4.4.2-static/ -executable -type f `; do strip -x "$f" || true; done
+RUN for f in `find /opt/R/${R_VERSION}-glibc/ -executable -type f `; do strip -x "$f" || true; done
 
 FROM ubuntu:18.04 AS final
-COPY --from=build /opt/R/4.4.2-static /opt/R/4.4.2-static
+COPY --from=build /opt/R /opt/R
 
 USER root
 WORKDIR /root
