@@ -1,0 +1,11 @@
+services:
+  bionic:
+    command: /package.sh
+    environment:
+      - R_VERSION=${R_VERSION}
+    build:
+      context: .
+      dockerfile: dockerfiles/bionic/Dockerfile
+    image: r-hub/r-glibc-bionic
+    volumes:
+      - ./output:/output
