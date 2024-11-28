@@ -3,13 +3,13 @@ services:
     command: |
       sh -c 'cp -r /root/output/* /output/'
     environment:
-      - R_VERSION=${R_VERSION}
+      - R_VERSION=${R_VERSION:?error}
     build:
       context: .
       dockerfile: dockerfiles/bionic/Dockerfile
       args:
-        R_VERSION: ${R_VERSION}
-      target: package
+        R_VERSION: ${R_VERSION:?error}
+      target: ${TARGET-package}
     image: r-hub/r-glibc-bionic
     volumes:
       - ./output:/output

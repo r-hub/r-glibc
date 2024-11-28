@@ -1,4 +1,4 @@
-# -*- Dockerfile -*-
+# -*- Dockerfile -*- ------------------------------------------------------
 
 FROM ubuntu:18.04 AS build
 
@@ -142,21 +142,43 @@ RUN echo "_R_SHLIB_STRIP_=${_R_SHLIB_STRIP_-true}" \
 # strip
 RUN for f in `find /opt/R/${R_VERSION}-glibc/ -executable -type f `; do strip -x "$f" || true; done
 
+# -------------------------------------------------------------------------
+
 FROM ubuntu:18.04 AS test
 COPY --from=build /opt/R /opt/R
+ARG R_VERSION
 
-# TODO
+RUN ln -sf /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin/
+
+# install bats
+RUN apt-get update && \
+    apt-get install -y figlet curl patchelf file \
+      gcc make libc6-dev g++ gfortran
+COPY tools/install-bats.sh install-bats.sh
+RUN sh install-bats.sh
+
+COPY test test
+RUN mkdir -p /root/test-results && \
+    cd test && \
+    printf '%*s\n' 80 '' | tr ' ' - && \
+    figlet TESTS && \
+    bats -o /root/test-results --timing --print-output-on-failure . | \
+    tee /root/test-results/test-output.txt && \
+    printf '%*s\n' 80 '' | tr ' ' -
+
+# -------------------------------------------------------------------------
 
 FROM ubuntu:18.04 AS package
 ARG R_VERSION
 COPY --from=build /opt/R /opt/R
+COPY --from=test /root/test-results /root/test-results
 
 RUN tar czf r-${R_VERSION}-glibc.tar.gz /opt/R/${R_VERSION}-glibc/ && \
     mkdir -p /root/output && \
     mv r-${R_VERSION}-glibc.tar.gz /root/output
 
 RUN apt-get update && \
-    apt-get install -y gettext-base curl
+    apt-get install -y gettext-base curl figlet
 
 RUN curl -LO "https://github.com/goreleaser/nfpm/releases/download/v2.41.1/nfpm_2.41.1_$(dpkg --print-architecture).deb" && \
     apt install -y ./nfpm_*.deb && \
@@ -166,17 +188,23 @@ COPY tools/package-deb.yml.in package-deb.yml.in
 RUN export R_VERSION=${R_VERSION} && \
     export ARCH="`dpkg --print-architecture`" && \
     cat package-deb.yml.in | envsubst | tee package-deb.yml
-RUN nfpm package \
+RUN printf '%*s\n' 80 '' | tr ' ' - && \
+    figlet "DEB package" && \
+    nfpm package \
       -f package-deb.yml \
       -p deb \
-      -t /root/output
+      -t /root/output && \
+      printf '%*s\n' 80 '' | tr ' ' -
 
 COPY tools/package-rpm.yml.in package-rpm.yml.in
 RUN export R_VERSION=${R_VERSION} && \
     export ARCH="`dpkg --print-architecture`" && \
     cat package-rpm.yml.in | envsubst | tee package-rpm.yml
-RUN mkdir -p /root/output && \
+RUN printf '%*s\n' 80 '' | tr ' ' - && \
+    figlet "RPM package" && \
+    printf '%*s\n' 80 '' | tr ' ' - && \
     nfpm package \
       -f package-rpm.yml \
       -p rpm \
-      -t /root/output
+      -t /root/output && \
+      printf '%*s\n' 80 '' | tr ' ' -
