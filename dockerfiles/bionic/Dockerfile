@@ -135,6 +135,10 @@ RUN curl -L https://curl.se/ca/cacert.pem -o /opt/R/${R_VERSION}-glibc/lib/R/sha
 RUN echo "CURL_CA_BUNDLE=${CURL_CA_BUNDLE-/opt/R/${R_VERSION}-glibc/lib/R/share/curl-ca-bundle.crt}" \
     >> /opt/R/${R_VERSION}-glibc/lib/R/etc/Renviron
 
+# strip debug symbols by default
+RUN echo "_R_SHLIB_STRIP_=${_R_SHLIB_STRIP_-true}" \
+    >> /opt/R/${R_VERSION}-glibc/lib/R/etc/Renviron
+
 # strip
 RUN for f in `find /opt/R/${R_VERSION}-glibc/ -executable -type f `; do strip -x "$f" || true; done
 
