@@ -98,6 +98,11 @@ RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/whi
     mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/tools && \
     cp opt/r-lib/bin/which /opt/R/${R_VERSION}-glibc/lib/R/tools
 
+# R should not default to linking to /opt/r-lib, so create some symlinks
+RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R && \
+    ln -s /opt/r-lib/lib /opt/R/${R_VERSION}-glibc/lib/R/ && \
+    ln -s /opt/r-lib/include /opt/R/${R_VERSION}-glibc/lib/R/
+
 RUN curl -LO https://cran.r-project.org/src/base/R-4/R-${R_VERSION}.tar.gz
 RUN tar xzf R-${R_VERSION}.tar.gz
 
@@ -109,13 +114,21 @@ RUN cd R-${R_VERSION} && \
     --with-blas --with-lapack --enable-BLAS-shlib=no \
     --with-included-gettext \
     --with-static-cairo \
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/r-lib/lib/pkgconfig" \
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/R/${R_VERSION}-glibc/lib/R/lib/pkgconfig" \
     BLAS_LIBS="-lopenblas -lpthread" \
-    CPPFLAGS=-I/opt/r-lib/include \
-    LDFLAGS=-L/opt/r-lib/lib
+    CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
+    LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib
 
 RUN cd R-${R_VERSION} && make
+
+# remove the temporary symlinks
+RUN rm /opt/R/${R_VERSION}-glibc/lib/R/include \
+    /opt/R/${R_VERSION}-glibc/lib/R/lib
 RUN cd R-${R_VERSION} && make install
+
+# embed openblas static lib
+RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/lib && \
+    cp /opt/r-lib/lib/libopenblas.a /opt/R/${R_VERSION}-glibc/lib/R/lib/
 
 # patch to embed CA certs
 RUN curl -L https://curl.se/ca/cacert.pem -o /opt/R/${R_VERSION}-glibc/lib/R/share/curl-ca-bundle.crt
