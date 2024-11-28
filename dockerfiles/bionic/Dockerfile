@@ -47,20 +47,20 @@ RUN cd curl-* && \
 #  export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 #
 #   # Variables used by cdbs
-RUN curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libssl-dev_1.1.1-1ubuntu2.1.18.04.23_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libssl1.1_1.1.1-1ubuntu2.1.18.04.23_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/openssl_1.1.1-1ubuntu2.1.18.04.23_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libtiff-dev_4.0.9-5ubuntu0.10_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libtiff5-dev_4.0.9-5ubuntu0.10_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libtiff5_4.0.9-5ubuntu0.10_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libtiffxx5_4.0.9-5ubuntu0.10_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libfreetype6-dev_2.8.1-2ubuntu2.2_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libfreetype6_2.8.1-2ubuntu2.2_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libpng-dev_1.6.34-1ubuntu0.18.04.2_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libpng-tools_1.6.34-1ubuntu0.18.04.2_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libpng16-16_1.6.34-1ubuntu0.18.04.2_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libpixman-1-0_0.34.0-2ubuntu0.1_arm64.deb && \
-    curl -LO https://github.com/r-hub/r-musl/releases/download/0.0.1/libpixman-1-dev_0.34.0-2ubuntu0.1_arm64.deb && \
+RUN curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl-dev_1.1.1-1ubuntu2.1.18.04.23_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl1.1_1.1.1-1ubuntu2.1.18.04.23_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/openssl_1.1.1-1ubuntu2.1.18.04.23_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff-dev_4.0.9-5ubuntu0.10_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5-dev_4.0.9-5ubuntu0.10_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5_4.0.9-5ubuntu0.10_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiffxx5_4.0.9-5ubuntu0.10_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6-dev_2.8.1-2ubuntu2.2_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6_2.8.1-2ubuntu2.2_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-dev_1.6.34-1ubuntu0.18.04.2_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-tools_1.6.34-1ubuntu0.18.04.2_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng16-16_1.6.34-1ubuntu0.18.04.2_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-0_0.34.0-2ubuntu0.1_arm64.deb && \
+    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_arm64.deb && \
     apt-get update && \
     apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
     dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* libpng* libpixman* && \
