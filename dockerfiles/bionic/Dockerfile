@@ -45,27 +45,65 @@ RUN cd curl-* && \
 #
 #   # Variables used by cdbs
 RUN export ARCH=$(dpkg --print-architecture) && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl-dev_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl1.1_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/openssl_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5_4.0.9-5ubuntu0.10_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiffxx5_4.0.9-5ubuntu0.10_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6-dev_2.8.1-2ubuntu2.2_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6_2.8.1-2ubuntu2.2_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-dev_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-tools_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng16-16_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-0_0.34.0-2ubuntu0.1_$ARCH.deb && \
-    curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_$ARCH.deb && \
-    apt-get update && \
-    apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
-    dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* libpng* libpixman* && \
-    rm *.deb
+    if [ "$ARCH" = "arm64" ]; then \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl-dev_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl1.1_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/openssl_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiffxx5_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6-dev_2.8.1-2ubuntu2.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6_2.8.1-2ubuntu2.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-dev_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-tools_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng16-16_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-0_0.34.0-2ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_$ARCH.deb && \
+      apt-get update && \
+      apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
+      dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* libpng* libpixman* && \
+      rm *.deb; \
+    fi
 
+RUN export ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/zlib1g-dev_1.2.11.dfsg-0ubuntu2.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/zlib1g_1.2.11.dfsg-0ubuntu2.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6_2.8.1-2ubuntu2.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfreetype6-dev_2.8.1-2ubuntu2.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiffxx5_4.0.9-5ubuntu0.10_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libjbig-dev_2.1-3.1ubuntu0.18.04.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libjbig0_2.1-3.1ubuntu0.18.04.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libjpeg-turbo8_1.5.2-0ubuntu5.18.04.6_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libjpeg-turbo8-dev_1.5.2-0ubuntu5.18.04.6_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/liblzma-dev_5.2.2-1.3ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/liblzma5_5.2.2-1.3ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-dev_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng-tools_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng16-16_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfontconfig1-dev_2.12.6-0ubuntu2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libfontconfig1_2.12.6-0ubuntu2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libexpat1-dev_2.2.5-3ubuntu0.9_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libexpat1_2.2.5-3ubuntu0.9_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2-dev_1.15.10-2ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2_1.15.10-2ubuntu0.1_$ARCH.deb && \
+      dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
+        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* && \
+      rm *.deb; \
+    fi
+
+# TODO: static libgfortran on amd64: need to recompile gcc for this :(
 RUN mkdir -p /opt/r-lib/lib && \
-    cp `find /usr/ -name libgfortran.a` /opt/r-lib/lib/ && \
+    export ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+      cp `find /usr/ -name libgfortran.a` /opt/r-lib/lib/ ; \
+    fi && \
     cp `find /usr/ -name 'libstdc++.a'` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libgomp.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libreadline.a` /opt/r-lib/lib/ && \
@@ -80,7 +118,6 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr/ -name libpng.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libtiff.a` /opt/r-lib/lib/ && \
     cp `dpkg -L libicu-dev | grep '\.a$'` /opt/r-lib/lib/ && \
-    cp `find /usr -name libcairo.a` /opt/r-lib/lib/ &&\
     cp `find /usr -name libffi.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libjbig.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libpng16.a` /opt/r-lib/lib/ && \
@@ -88,7 +125,8 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libfontconfig.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libfreetype.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libexpat.a` /opt/r-lib/lib/ && \
-    cp `find /usr -name libpng16.a` /opt/r-lib/lib/
+    cp `find /usr -name libpng16.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libcairo.a` /opt/r-lib/lib/
 
 ARG R_VERSION
 
@@ -120,7 +158,7 @@ RUN cd R-${R_VERSION} && \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib
 
-RUN cd R-${R_VERSION} && make
+RUN cd R-${R_VERSION}  && make
 
 # remove the temporary symlinks
 RUN rm /opt/R/${R_VERSION}-glibc/lib/R/include \
@@ -158,13 +196,13 @@ RUN apt-get update && \
 COPY tools/install-bats.sh install-bats.sh
 RUN sh install-bats.sh
 
+# kill $self is needed, otherwise a pipeline does not fail
 COPY test test
 RUN mkdir -p /root/test-results && \
     cd test && \
     printf '%*s\n' 80 '' | tr ' ' - && \
     figlet TESTS && \
-    bats -o /root/test-results --timing --print-output-on-failure . | \
-    tee /root/test-results/test-output.txt && \
+    bats -o /root/test-results --timing . && \
     printf '%*s\n' 80 '' | tr ' ' -
 
 # -------------------------------------------------------------------------
