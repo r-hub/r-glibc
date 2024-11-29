@@ -183,68 +183,71 @@ RUN for f in `find /opt/R/${R_VERSION}-glibc/ -executable -type f `; do strip -x
 
 # -------------------------------------------------------------------------
 
+FROM ghcr.io/gaborcsardi/figlet AS figlet
 FROM ubuntu:18.04 AS test
+COPY --from=figlet /usr/local /usr/local
 COPY --from=build /opt/R /opt/R
 ARG R_VERSION
 
 RUN ln -sf /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin/
 
-# install bats
-RUN apt-get update && \
-    apt-get install -y figlet curl patchelf file \
-      gcc make libc6-dev g++ gfortran
 COPY tools/install-bats.sh install-bats.sh
-RUN sh install-bats.sh
+RUN ::: test deps && : ----------------------------------------------- && \
+    apt-get update && \
+    apt-get install -y curl patchelf file \
+      gcc make libc6-dev g++ gfortran && \
+    sh install-bats.sh && \
+    ----- # ---------------------------------------------------------------
 
-# kill $self is needed, otherwise a pipeline does not fail
 COPY test test
-RUN mkdir -p /root/test-results && \
+RUN ::: TESTS && : --------------------------------------------------- && \
+    mkdir -p /root/test-results && \
     cd test && \
-    printf '%*s\n' 80 '' | tr ' ' - && \
-    figlet TESTS && \
     bats -o /root/test-results --timing . && \
-    printf '%*s\n' 80 '' | tr ' ' -
+    ----- # ---------------------------------------------------------------
 
-# -------------------------------------------------------------------------
+# =========================================================================
 
 FROM ubuntu:18.04 AS package
 ARG R_VERSION
+COPY --from=figlet /usr/local /usr/local
 COPY --from=build /opt/R /opt/R
 COPY --from=test /root/test-results /root/test-results
 
-RUN tar czf r-${R_VERSION}-glibc-$(arch).tar.gz \
+RUN ::: TAR.GZ package && : ------------------------------------------ && \
+    tar czf r-${R_VERSION}-glibc-$(arch).tar.gz \
       /opt/R/${R_VERSION}-glibc/ && \
     mkdir -p /root/output && \
-    mv r-${R_VERSION}-glibc-$(arch).tar.gz /root/output
+    mv r-${R_VERSION}-glibc-$(arch).tar.gz /root/output && \
+    ----- # ---------------------------------------------------------------
 
-RUN apt-get update && \
+RUN ::: nfpm packager && : ------------------------------------------- && \
+    apt-get update && \
     apt-get install -y gettext-base curl figlet
 
 RUN curl -LO "https://github.com/goreleaser/nfpm/releases/download/v2.41.1/nfpm_2.41.1_$(dpkg --print-architecture).deb" && \
     apt install -y ./nfpm_*.deb && \
-    rm nfpm_*.deb
+    rm nfpm_*.deb && \
+    ----- # ---------------------------------------------------------------
 
 COPY tools/package-deb.yml.in package-deb.yml.in
-RUN export R_VERSION=${R_VERSION} && \
+RUN ::: DEB package && : --------------------------------------------- && \
+    export R_VERSION=${R_VERSION} && \
     export ARCH="`dpkg --print-architecture`" && \
     cat package-deb.yml.in | envsubst | tee package-deb.yml
-RUN printf '%*s\n' 80 '' | tr ' ' - && \
-    figlet "DEB package" && \
-    nfpm package \
+RUN nfpm package \
       -f package-deb.yml \
       -p deb \
       -t /root/output && \
-    printf '%*s\n' 80 '' | tr ' ' -
+    ----- # ---------------------------------------------------------------
 
 COPY tools/package-rpm.yml.in package-rpm.yml.in
-RUN export R_VERSION=${R_VERSION} && \
+RUN ::: RPM package && : --------------------------------------------- && \
+    export R_VERSION=${R_VERSION} && \
     export ARCH="`dpkg --print-architecture`" && \
     cat package-rpm.yml.in | envsubst | tee package-rpm.yml
-RUN printf '%*s\n' 80 '' | tr ' ' - && \
-    figlet "RPM package" && \
-    printf '%*s\n' 80 '' | tr ' ' - && \
-    nfpm package \
+RUN nfpm package \
       -f package-rpm.yml \
       -p rpm \
       -t /root/output && \
-      printf '%*s\n' 80 '' | tr ' ' -
+    ----- # ---------------------------------------------------------------
