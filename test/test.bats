@@ -3,28 +3,10 @@
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
 
+# TODO: remove libgfortran
 @test "no extra dynamic libs" {
-  RHOME=$(R -s -e 'cat(R.home())')
-  LIBS="libpthread.so.0
-        libm.so.6
-        libdl.so.2
-        libgcc_s.so.1
-        libc.so.6
-        ld-linux-aarch64.so.1"
-  echo "$LIBS" | tr -d ' ' | sort > /tmp/oklibs
-  run sh -c "patchelf --print-needed $RHOME/bin/exec/R | sort |
-             comm -23 - /tmp/oklibs"
-  [ "$output" = "" ] || echo "$output" && [ "$output" = "" ]
-
-  run sh -c "patchelf --print-needed $RHOME/bin/Rscript | sort |
-             comm -23 - /tmp/oklibs"
-  [ "$output" = "" ] || echo "$output" && [ "$output" = "" ]
-
-  for so in `find $RHOME -name "*.so"`; do
-    run sh -c "patchelf --print-needed $so | sort |
-             comm -23 - /tmp/oklibs"
-    [ "$output" = "" ] || echo "$output" && [ "$output" = "" ]
-  done
+  run R -q -s -f test-dynlibs.R
+  [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
 
 @test "BLAS/LAPACK loads" {
