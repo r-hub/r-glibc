@@ -7,7 +7,6 @@ oklibs <- c(
   "libdl.so.2",
   "libgcc_s.so.1",
   "libc.so.6",
-  "libgfortran.so.4",  # TODO: remove
   "librt.so.1",
   "ld-linux-aarch64.so.1",
   "ld-linux-x86-64.so.2"

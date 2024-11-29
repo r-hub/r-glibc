@@ -98,11 +98,15 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       rm *.deb; \
     fi
 
-# TODO: static libgfortran on amd64: need to recompile gcc for this :(
 RUN mkdir -p /opt/r-lib/lib && \
     export ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "arm64" ]; then \
       cp `find /usr/ -name libgfortran.a` /opt/r-lib/lib/ ; \
+    else \
+      curl -L https://github.com/r-hub/r-glibc/releases/download/bionic/libgfortran.a \
+        -o /opt/r-lib/lib/libgfortran.a; \
+      curl -L https://github.com/r-hub/r-glibc/releases/download/bionic/libquadmath.a \
+        -o /opt/r-lib/lib/libquadmath.a; \
     fi && \
     cp `find /usr/ -name 'libstdc++.a'` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libgomp.a` /opt/r-lib/lib/ && \
