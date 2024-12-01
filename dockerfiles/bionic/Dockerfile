@@ -98,21 +98,19 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libexpat1_2.2.5-3ubuntu0.9_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2-dev_1.15.10-2ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2_1.15.10-2ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgcc-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgfortran-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
-        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* && \
+        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* libgcc* libgfortran* && \
       rm *.deb; \
     fi
 
 RUN mkdir -p /opt/r-lib/lib && \
     export ARCH=$(dpkg --print-architecture) && \
-    if [ "$ARCH" = "arm64" ]; then \
-      cp `find /usr/ -name libgfortran.a` /opt/r-lib/lib/ ; \
-    else \
-      curl -L https://github.com/r-hub/r-glibc/releases/download/bionic/libgfortran.a \
-        -o /opt/r-lib/lib/libgfortran.a; \
-      curl -L https://github.com/r-hub/r-glibc/releases/download/bionic/libquadmath.a \
-        -o /opt/r-lib/lib/libquadmath.a; \
+    if [ "$ARCH" = "amd64" ]; then \
+      cp `find /usr/ -name libquadmath.a` /opt/r-lib/lib/ ; \
     fi && \
+    cp `find /usr/ -name libgfortran.a` /opt/r-lib/lib/ ; \
     cp `find /usr/ -name 'libstdc++.a'` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libgomp.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libreadline.a` /opt/r-lib/lib/ && \
