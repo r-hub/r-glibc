@@ -61,10 +61,10 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng16-16_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-0_0.34.0-2ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_$ARCH.deb && \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_arm64.deb && \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libglib2.0-dev_2.56.4-0ubuntu0.18.04.9_arm64.deb && \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_arm64.deb && \
-    apt-get update && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libglib2.0-dev_2.56.4-0ubuntu0.18.04.9_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
+      apt-get update && \
       apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
       dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* \
         libpng* libpixman* libpango* libglib* libgraphite2* && \
@@ -100,8 +100,11 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2_1.15.10-2ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgcc-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgfortran-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
-        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* libgcc* libgfortran* && \
+        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* \
+        libgcc* libgfortran* libgraphite2* libpango* && \
       rm *.deb; \
     fi
 
@@ -140,8 +143,8 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libpangoft2-1.0.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libharfbuzz.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libglib-2.0.a` /opt/r-lib/lib/ && \
-    cp `find /usr -name libgraphite2.a` /opt/r-lib/lib/&& \
-    cp `find /usr/ -name libthai.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libgraphite2.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libthai.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libdatrie.a` /opt/r-lib/lib/
 
 ARG R_VERSION
