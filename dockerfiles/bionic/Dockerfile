@@ -15,7 +15,8 @@ RUN apt-get update && \
     apt-get install -y libreadline-dev zlib1g-dev libbz2-dev \
     liblzma-dev libpcre2-dev libssl-dev libopenblas-dev \
     libjpeg-turbo8-dev libpng-dev libtiff-dev libicu-dev \
-    libcairo-dev libffi-dev
+    libcairo-dev libffi-dev libpango1.0-dev libthai-dev \
+    libdatrie-dev
 
 # roll our own libcurl, the original has way too many depe
 RUN curl -LO https://curl.haxx.se/download/curl-8.11.0.tar.gz
@@ -60,9 +61,13 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpng16-16_1.6.34-1ubuntu0.18.04.2_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-0_0.34.0-2ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpixman-1-dev_0.34.0-2ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libglib2.0-dev_2.56.4-0ubuntu0.18.04.9_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
       apt-get update && \
       apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
-      dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* libpng* libpixman* && \
+      dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* \
+        libpng* libpixman* libpango* libglib* libgraphite2* && \
       rm *.deb; \
     fi
 
@@ -95,8 +100,11 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2_1.15.10-2ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgcc-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgfortran-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
-        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* libgcc* libgfortran* && \
+        libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* \
+        libgcc* libgfortran* libgraphite2* libpango* && \
       rm *.deb; \
     fi
 
@@ -128,7 +136,16 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libfreetype.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libexpat.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libpng16.a` /opt/r-lib/lib/ && \
-    cp `find /usr -name libcairo.a` /opt/r-lib/lib/
+    cp `find /usr -name libcairo.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libpangocairo-1.0.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libpango-1.0.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libgobject-2.0.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libpangoft2-1.0.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libharfbuzz.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libglib-2.0.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libgraphite2.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libthai.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libdatrie.a` /opt/r-lib/lib/
 
 ARG R_VERSION
 
@@ -160,7 +177,7 @@ RUN cd R-${R_VERSION} && \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib
 
-RUN cd R-${R_VERSION}  && make
+RUN cd R-${R_VERSION} && make
 
 # remove the temporary symlinks
 RUN rm /opt/R/${R_VERSION}-glibc/lib/R/include \
@@ -188,10 +205,6 @@ RUN for f in `find /opt/R/${R_VERSION}-glibc/ -executable -type f `; do strip -x
 FROM ghcr.io/gaborcsardi/figlet AS figlet
 FROM ubuntu:18.04 AS test
 COPY --from=figlet /usr/local /usr/local
-COPY --from=build /opt/R /opt/R
-ARG R_VERSION
-
-RUN ln -sf /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin/
 
 COPY tools/install-bats.sh install-bats.sh
 RUN ::: test deps && : ----------------------------------------------- && \
@@ -201,6 +214,9 @@ RUN ::: test deps && : ----------------------------------------------- && \
     sh install-bats.sh && \
     ----- # ---------------------------------------------------------------
 
+ARG R_VERSION
+COPY --from=build /opt/R /opt/R
+RUN ln -sf /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin/
 COPY test test
 RUN ::: TESTS && : --------------------------------------------------- && \
     mkdir -p /root/test-results && \
