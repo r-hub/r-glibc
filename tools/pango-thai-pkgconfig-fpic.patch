@@ -1,0 +1,67 @@
+diff -ru pango1.0-1.40.14/debian/rules pango1.0-1.40.14-patched/debian/rules
+--- pango1.0-1.40.14/debian/rules	2017-12-21 01:51:30.000000000 +0000
++++ pango1.0-1.40.14-patched/debian/rules	2024-11-29 22:29:23.370000660 +0000
+@@ -3,6 +3,9 @@
+ 
+ GNOME_MODULE := pango
+ 
++export DEB_CFLAGS_MAINT_APPEND += -fPIC
++export DEB_CXXFLAGS_MAINT_APPEND += -fPIC
++
+ # Ensure the build aborts when there are still references to undefined symbols
+ export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs -Wl,--as-needed
+ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+diff -ru pango1.0-1.40.14/pango.pc.in pango1.0-1.40.14-patched/pango.pc.in
+--- pango1.0-1.40.14/pango.pc.in	2016-10-22 05:00:03.000000000 +0000
++++ pango1.0-1.40.14-patched/pango.pc.in	2024-12-01 14:25:17.880001951 +0000
+@@ -6,7 +6,7 @@
+ Name: Pango
+ Description: Internationalized text handling
+ Version: @VERSION@
+-Requires: glib-2.0 gobject-2.0
+-Libs: -L${libdir} -lpango-@PANGO_API_VERSION@
+-Libs.private: -lm
++Requires: glib-2.0 gobject-2.0 thai
++Libs: -L${libdir} -lpango-@PANGO_API_VERSION@ -lthai
++Libs.private: -lm -lthai
+ Cflags: -I${includedir}/pango-1.0
+diff -ru pango1.0-1.40.14/pangocairo.pc.in pango1.0-1.40.14-patched/pangocairo.pc.in
+--- pango1.0-1.40.14/pangocairo.pc.in	2016-10-22 05:00:36.000000000 +0000
++++ pango1.0-1.40.14-patched/pangocairo.pc.in	2024-12-01 14:25:01.190001943 +0000
+@@ -6,7 +6,7 @@
+ Name: Pango Cairo
+ Description: Cairo rendering support for Pango
+ Version: @VERSION@
+-Requires: pango cairo
+-Requires.private: @PKGCONFIG_CAIRO_REQUIRES@
+-Libs: -L${libdir} -lpangocairo-@PANGO_API_VERSION@
++Requires: pango cairo thai
++Requires.private: @PKGCONFIG_CAIRO_REQUIRES@ thai
++Libs: -L${libdir} -lpangocairo-@PANGO_API_VERSION@ -lthai
+ Cflags: -I${includedir}/pango-1.0
+diff -ru pango1.0-1.40.14/pangoft2.pc.in pango1.0-1.40.14-patched/pangoft2.pc.in
+--- pango1.0-1.40.14/pangoft2.pc.in	2016-10-22 05:00:57.000000000 +0000
++++ pango1.0-1.40.14-patched/pangoft2.pc.in	2024-12-01 14:26:11.820001977 +0000
+@@ -6,7 +6,7 @@
+ Name: Pango FT2 and Pango Fc
+ Description: Freetype 2.0 and fontconfig font support for Pango
+ Version: @VERSION@
+-Requires: pango freetype2 fontconfig
+-Requires.private: harfbuzz
+-Libs: -L${libdir} -lpangoft2-@PANGO_API_VERSION@
++Requires: pango freetype2 fontconfig thai
++Requires.private: harfbuzz thai
++Libs: -L${libdir} -lpangoft2-@PANGO_API_VERSION@ -lthai
+ Cflags: -I${includedir}/pango-1.0
+diff -ru pango1.0-1.40.14/pangoxft.pc.in pango1.0-1.40.14-patched/pangoxft.pc.in
+--- pango1.0-1.40.14/pangoxft.pc.in	2016-10-22 05:00:55.000000000 +0000
++++ pango1.0-1.40.14-patched/pangoxft.pc.in	2024-12-01 14:25:35.020001959 +0000
+@@ -6,6 +6,6 @@
+ Name: Pango Xft
+ Description: Xft font support for Pango
+ Version: @VERSION@
+-Requires: pango pangoft2 xft
+-Libs: -L${libdir} -lpangoxft-@PANGO_API_VERSION@
++Requires: pango pangoft2 xft thai
++Libs: -L${libdir} -lpangoxft-@PANGO_API_VERSION@ -lthai
+ Cflags: -I${includedir}/pango-1.0
