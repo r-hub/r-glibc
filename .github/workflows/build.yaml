@@ -197,6 +197,7 @@ jobs:
       env:
         TARGET: package
       run: |
+        cd ${{ github.workspace }}
         docker compose build bionic
         docker compose up bionic
 
