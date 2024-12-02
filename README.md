@@ -38,8 +38,8 @@ We have `x86_64` and `aarch64` builds.
 * Daily development snapshot (`devel`).
 * Daily snapshot of the next (patched, beta, alpha or RC) version of
   R (`next`).
-* List of all supported versions: ● `4.3.0` ● `4.3.1` ● `4.3.2` ● `4.3.3` ●
-  `4.4.0` ● `4.4.1` ● `4.4.2` ● `next` ● `devel`.
+* List of all supported versions: • `4.3.0` • `4.3.1` • `4.3.2` • `4.3.3` •
+  `4.4.0` • `4.4.1` • `4.4.2` • `next` • `devel`.
 
 More versions are coming soon (#13).
 
