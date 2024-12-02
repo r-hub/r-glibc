@@ -84,6 +84,7 @@ jobs:
           - { container: 'ubuntu:18.04'       }
           - { container: 'ubuntu:20.04'       }
           - { container: 'ubuntu:22.04'       }
+          - { container: 'ubuntu:24.04'       }
           - { container: 'debian:11'          }
           - { container: 'debian:12'          }
           - { container: 'almalinux:8'        }
