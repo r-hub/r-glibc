@@ -12,8 +12,10 @@ elif command -v yum; then
     yum install -y epel-release || true # might be needed, might be not
     yum install -y curl patchelf file gcc make glibc-devel gcc-c++ gcc-gfortran
 elif command -v zypper; then
+    # glibc-locale-base is actually needed on OpenSUSE currently, to install
+    # packages with a latin1 DESCRIPTION
     zypper --non-interactive install curl patchelf file gcc make \
-	   glibc-devel gcc-c++ gcc-fortran tar gzip
+	   glibc-devel gcc-c++ gcc-fortran tar gzip glibc-locale-base
 else
     >&2 echo Cannot install bats on this platform
     exit 1
