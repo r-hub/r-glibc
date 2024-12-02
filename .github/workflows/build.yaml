@@ -1,0 +1,119 @@
+name: build.yaml
+
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: 'Build R'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+        default: 'yes'
+      test:
+        description: 'Run tests'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+        default: 'yes'
+      deploy:
+        description: 'Deploy packages'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+        default: 'no'
+
+jobs:
+  build:
+    name: build
+    if: ${{ github.event.inputs.build == '' || github.event.inputs.build == 'yes' }}
+    runs-on: ubuntu-latest
+    env:
+      R_VERSION: '4.4.2'
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 10
+
+    - name: Build
+      env:
+        TARGET: build
+      run: |
+        docker compose build bionic
+    
+    - name: Test
+      env:
+        TARGET: test
+      run: |
+        docker compose build bionic
+
+    - name: Package
+      env:
+        TARGET: package
+      run: |
+        docker compose build bionic
+        docker compose up bionic
+
+    - name: Upload tar.gz package
+      uses: actions/upload-artifact@v4
+      with:
+        name: targz
+        path: output/*.tar.gz
+
+    - name: Upload DEB package
+      uses: actions/upload-artifact@v4
+      with:
+        name: deb
+        path: output/*.deb
+
+    - name: Upload rpm package
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpm
+        path: output/*.rpm
+
+  test:
+    name: test
+    if: ${{ github.event.inputs.test == '' || github.event.inputs.test == 'yes' }}
+    runs-on: ubuntu-latest
+    needs: [ build ]
+
+    steps:
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: targz
+
+    - name: List artifacts
+      run: |
+        ls -l
+        find .
+      shell: bash
+
+  deploy:
+    name: deploy
+    if: ${{ github.event.inputs.deploy == '' || github.event.inputs.deploy == 'yes' }}
+    runs-on: ubuntu-latest
+    needs: [ test ]
+
+    steps:
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: targz
+
+    - name: List artifacts
+      run: |
+        ls -l
+        find .
+      shell: bash
