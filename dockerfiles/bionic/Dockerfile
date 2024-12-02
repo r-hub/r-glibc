@@ -1,6 +1,6 @@
 # -*- Dockerfile -*- ------------------------------------------------------
 
-FROM ubuntu:18.04 AS build
+FROM ubuntu:18.04 AS download
 
 USER root
 WORKDIR /root
@@ -161,8 +161,23 @@ RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R && \
     ln -s /opt/r-lib/lib /opt/R/${R_VERSION}-glibc/lib/R/ && \
     ln -s /opt/r-lib/include /opt/R/${R_VERSION}-glibc/lib/R/
 
-RUN curl -LO https://cran.r-project.org/src/base/R-4/R-${R_VERSION}.tar.gz
+RUN if [ "${R_VERSION}" = "devel" ]; then \
+      curl -LO https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz; \
+    elif [ "${R_VERSION}" = "next" ]; then \
+      curl -LO https://cran.rstudio.com/src/base-prerelease/R-patched.tar.gz; \
+      mv R-patched.tar.gz R-next.tar.gz; \
+    else \
+      curl -LO https://cran.r-project.org/src/base/R-4/R-${R_VERSION}.tar.gz; \
+    fi
 RUN tar xzf R-${R_VERSION}.tar.gz
+RUN if [ -e R-patched ]; then mv R-patched R-next; fi
+RUN if [ -e R-beta ]; then mv R-beta R-next; fi
+RUN if [ -e R-alpha ]; then mv R-alpha R-next; fi
+RUN if [ -e R-rc ]; then mv R-rc R-next; fi
+RUN if [ -e R-prerelease ]; then mv R-prerelease R-next; fi
+RUN if [ -e R-pre ]; then mv R-pre R-next; fi
+
+FROM download AS configure
 
 COPY dockerfiles/bionic/R-${R_VERSION}.patch .
 RUN cd R-${R_VERSION} && patch -p1 < ../R-${R_VERSION}.patch
@@ -176,6 +191,8 @@ RUN cd R-${R_VERSION} && \
     BLAS_LIBS="-lopenblas -lpthread" \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib
+
+FROM configure AS build
 
 RUN cd R-${R_VERSION} && make
 
