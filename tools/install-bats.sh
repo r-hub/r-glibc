@@ -12,7 +12,8 @@ elif command -v yum; then
     yum install -y epel-release || true # might be needed, might be not
     yum install -y curl patchelf file gcc make glibc-devel gcc-c++ gcc-gfortran
 elif command -v zypper; then
-    zypper --non-interactive install curl patchelf file gcc make glibc-devel gcc-c++ gcc-gfortran
+    zypper --non-interactive install curl patchelf file gcc make \
+	   glibc-devel gcc-c++ gcc-fortran tar gzip
 else
     >&2 echo Cannot install bats on this platform
     exit 1
