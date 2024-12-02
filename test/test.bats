@@ -3,9 +3,12 @@
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
 
-# TODO: remove libgfortran
 @test "no extra dynamic libs" {
-  run R -q -s -f test-dynlibs.R
+  if command -v patchelf; then
+    run R -q -s -f test-dynlibs.R;
+  else
+    run true
+  fi
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
 

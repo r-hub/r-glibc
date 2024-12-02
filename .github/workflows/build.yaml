@@ -107,8 +107,8 @@ jobs:
           - { container: 'almalinux:9'        }
           - { container: 'rockylinux:8'       }
           - { container: 'rockylinux:9'       }
-          # - { container: 'redhat/ubi8'      }
-          # - { container: 'redhat/ubi9'      }
+          - { container: 'redhat/ubi8'        }
+          - { container: 'redhat/ubi9'        }
           - { container: 'opensuse/leap:15.5' }
           - { container: 'opensuse/leap:15.6' }
           - { container: 'fedora:39'          }
