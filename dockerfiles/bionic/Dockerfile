@@ -208,9 +208,6 @@ COPY --from=figlet /usr/local /usr/local
 
 COPY tools/install-bats.sh install-bats.sh
 RUN ::: test deps && : ----------------------------------------------- && \
-    apt-get update && \
-    apt-get install -y curl patchelf file \
-      gcc make libc6-dev g++ gfortran && \
     sh install-bats.sh && \
     ----- # ---------------------------------------------------------------
 

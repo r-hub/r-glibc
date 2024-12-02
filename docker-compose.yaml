@@ -13,3 +13,14 @@ services:
     image: r-hub/r-glibc-bionic
     volumes:
       - ./output:/output
+
+  test:
+    command: |
+      TODO
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: ${CONTAINER:-r-hub/failure/here}
+    volumes:
+      - .:/root
