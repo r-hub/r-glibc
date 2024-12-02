@@ -3,8 +3,8 @@ name: build.yaml
 on:
   workflow_dispatch:
     inputs:
-      test:
-        description: 'Run tests'
+      build:
+        description: 'Build and run tests (x86_64)'
         required: true
         type: choice
         options:
@@ -12,7 +12,23 @@ on:
         - 'no'
         default: 'yes'
       deploy:
-        description: 'Deploy packages after testing'
+        description: 'Deploy packages after testing (x86_64)'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+        default: 'no'
+      buildarm:
+        description: 'Build and run tests (aarch64)'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+        default: 'yes'
+      deployarm:
+        description: 'Deploy packages after testing (aarch64)'
         required: true
         type: choice
         options:
@@ -22,6 +38,7 @@ on:
 
 jobs:
   build:
+    if: ${{ github.event.inputs.build == '' || github.event.inputs.build == 'yes' }}
     name: build
     runs-on: ubuntu-latest
     env:
@@ -73,7 +90,6 @@ jobs:
 
   test:
     name: test
-    if: ${{ github.event.inputs.test == '' || github.event.inputs.test == 'yes' }}
     runs-on: ubuntu-latest
     needs: [ build ]
 
@@ -112,14 +128,9 @@ jobs:
         path: output
         merge-multiple: true
 
-    - name: List artifacts
-      run: |
-        ls -l
-        find .
-      shell: bash
-
     - name: Test
       run: |
+        rm -f output/*aarch64* output/*arm64*
         R_VERSION=4.4.2 CONTAINER=${{ matrix.config.container }} docker compose build test
 
   deploy:
@@ -142,8 +153,150 @@ jobs:
         repository: r-hub/R
         token: ${{ secrets.DEPLOY_TOKEN }}
         files: |
-          output/*.deb
-          output/*.rpm
-          output/*.tar.gz
+          output/*amd64.deb
+          output/*x86_64.rpm
+          output/*x86_64.tar.gz
+        name: "R 4.4.2"
+        tag_name: v4.4.2
+
+  buildarm:
+    name: build (aarch64)
+    if: ${{ github.event.inputs.buildarm == '' || github.event.inputs.buildarm == 'yes' }}
+    runs-on: [self-hosted, linux, ARM64]
+    container:
+      image: "ubuntu:22.04"
+      volumes:
+        - ${{ github.workspace }}:/${{ github.workspace }}
+    env:
+      R_VERSION: '4.4.2'
+
+    steps:
+
+    - name: Install Docker, git
+      run: |
+        apt-get update && apt-get install -y docker.io docker-compose-v2 git
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 10
+
+    - name: Build
+      env:
+        TARGET: build
+      run: |
+        docker compose build bionic
+
+    - name: Test
+      env:
+        TARGET: test
+      run: |
+        docker compose build bionic
+
+    - name: Package
+      env:
+        TARGET: package
+      run: |
+        docker compose build bionic
+        docker compose up bionic
+
+    - name: Upload tar.gz package
+      uses: actions/upload-artifact@v4
+      with:
+        name: targzarm
+        path: output/*.tar.gz
+
+    - name: Upload DEB package
+      uses: actions/upload-artifact@v4
+      with:
+        name: debarm
+        path: output/*.deb
+
+    - name: Upload rpm package
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpmarm
+        path: output/*.rpm
+
+  testarm:
+    name: test (aarch64)
+    runs-on: [self-hosted, linux, ARM64]
+    needs: [ buildarm ]
+    container:
+      image: "ubuntu:22.04"
+      volumes:
+        - ${{ github.workspace }}:/${{ github.workspace }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { container: 'ubuntu:18.04'       }
+          - { container: 'ubuntu:20.04'       }
+          - { container: 'ubuntu:22.04'       }
+          - { container: 'ubuntu:24.04'       }
+          - { container: 'debian:11'          }
+          - { container: 'debian:12'          }
+          - { container: 'almalinux:8'        }
+          - { container: 'almalinux:9'        }
+          - { container: 'rockylinux:8'       }
+          - { container: 'rockylinux:9'       }
+          # - { container: 'redhat/ubi8'      }
+          # - { container: 'redhat/ubi9'      }
+          - { container: 'opensuse/leap:15.5' }
+          - { container: 'opensuse/leap:15.6' }
+          - { container: 'fedora:39'          }
+          - { container: 'fedora:40'          }
+          - { container: 'fedora:41'          }
+
+    steps:
+
+    - name: Install Docker, git
+      run: |
+        apt-get update && apt-get install -y docker.io docker-compose-v2 git
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 10
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: output
+        merge-multiple: true
+
+    - name: Test
+      run: |
+        rm -f output/*x86_64* output/*amd64*
+        R_VERSION=4.4.2 CONTAINER=${{ matrix.config.container }} docker compose build test
+
+  deployarm:
+    name: deploy (aarch64)
+    if: ${{ github.event.inputs.deployarm == '' || github.event.inputs.deployarm == 'yes' }}
+    runs-on: [self-hosted, linux, ARM64]
+    needs: [ testarm ]
+    container:
+      image: "ubuntu:22.04"
+      volumes:
+        - ${{ github.workspace }}:/${{ github.workspace }}
+
+    steps:
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: output
+        merge-multiple: true
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: r-hub/R
+        token: ${{ secrets.DEPLOY_TOKEN }}
+        files: |
+          output/*arm64.deb
+          output/*aarch64.rpm
+          output/*aarch64.tar.gz
         name: "R 4.4.2"
         tag_name: v4.4.2
