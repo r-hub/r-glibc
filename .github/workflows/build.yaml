@@ -122,8 +122,21 @@ jobs:
       run: |
         R_VERSION=4.4.2 CONTAINER=${{ matrix.config.container }} docker compose build test
 
+  deploy:
+    name: deploy
+    if: ${{ github.event.inputs.deploy == '' || github.event.inputs.deploy == 'yes' }}
+    runs-on: ubuntu-latest
+    needs: [ test ]
+
+    steps:
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: output
+        merge-multiple: true
+
     - name: Release
-      if: ${{ github.event.inputs.deploy == '' || github.event.inputs.deploy == 'yes' }}
       uses: softprops/action-gh-release@v2
       with:
         repository: r-hub/R
