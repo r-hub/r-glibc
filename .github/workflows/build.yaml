@@ -3,6 +3,10 @@ name: build.yaml
 on:
   workflow_dispatch:
     inputs:
+      rversion:
+        description: 'R version'
+        required: true
+        type: string
       build:
         description: 'Build and run tests (x86_64)'
         required: true
@@ -42,7 +46,7 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     env:
-      R_VERSION: '4.4.2'
+      R_VERSION: '${{ github.event.inputs.rversion }}'
 
     steps:
 
@@ -129,9 +133,12 @@ jobs:
         merge-multiple: true
 
     - name: Test
+      env:
+        R_VERSION: '${{ github.event.inputs.rversion }}'
+        CONTAINER: ${{ matrix.config.container }}
       run: |
         rm -f output/*aarch64* output/*arm64*
-        R_VERSION=4.4.2 CONTAINER=${{ matrix.config.container }} docker compose build test
+        docker compose build test
 
   deploy:
     name: deploy
@@ -156,8 +163,8 @@ jobs:
           output/*amd64.deb
           output/*x86_64.rpm
           output/*x86_64.tar.gz
-        name: "R 4.4.2"
-        tag_name: v4.4.2
+        name: '${{ github.event.inputs.rversion }}'
+        tag_name: 'v${{ github.event.inputs.rversion }}'
 
   buildarm:
     name: build (aarch64)
@@ -168,7 +175,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/${{ github.workspace }}
     env:
-      R_VERSION: '4.4.2'
+      R_VERSION: '${{ github.event.inputs.rversion }}'
 
     steps:
 
@@ -268,9 +275,12 @@ jobs:
         merge-multiple: true
 
     - name: Test
+      env:
+        R_VERSION: '${{ github.event.inputs.rversion }}'
+        CONTAINER: ${{ matrix.config.container }}
       run: |
         rm -f output/*x86_64* output/*amd64*
-        R_VERSION=4.4.2 CONTAINER=${{ matrix.config.container }} docker compose build test
+        docker compose build test
 
   deployarm:
     name: deploy (aarch64)
@@ -299,5 +309,5 @@ jobs:
           output/*arm64.deb
           output/*aarch64.rpm
           output/*aarch64.tar.gz
-        name: "R 4.4.2"
-        tag_name: v4.4.2
+        name: "R ${{ github.event.inputs.rversion }}"
+        tag_name: 'v${{ github.event.inputs.rversion }}'
