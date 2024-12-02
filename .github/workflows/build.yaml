@@ -3,14 +3,6 @@ name: build.yaml
 on:
   workflow_dispatch:
     inputs:
-      build:
-        description: 'Build R'
-        required: true
-        type: choice
-        options:
-        - 'yes'
-        - 'no'
-        default: 'yes'
       test:
         description: 'Run tests'
         required: true
@@ -20,7 +12,7 @@ on:
         - 'no'
         default: 'yes'
       deploy:
-        description: 'Deploy packages'
+        description: 'Deploy packages after testing'
         required: true
         type: choice
         options:
@@ -31,7 +23,6 @@ on:
 jobs:
   build:
     name: build
-    if: ${{ github.event.inputs.build == '' || github.event.inputs.build == 'yes' }}
     runs-on: ubuntu-latest
     env:
       R_VERSION: '4.4.2'
@@ -107,28 +98,29 @@ jobs:
 
     - name: Download all artifacts
       uses: actions/download-artifact@v4
-
-    - name: List artifacts
-      run: |
-        ls -l
-        find .
-      shell: bash
-
-  deploy:
-    name: deploy
-    if: ${{ github.event.inputs.deploy == '' || github.event.inputs.deploy == 'yes' }}
-    runs-on: ubuntu-latest
-    needs: [ test ]
-
-    steps:
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
       with:
-        name: targz
+        path: output
+        merge-multiple: true
 
     - name: List artifacts
       run: |
         ls -l
         find .
       shell: bash
+
+    - name: Test
+      run: |
+        R_VERSION=4.4.2 CONTAINER=${{ matrix.config.container }} docker compose build test
+
+    - name: Release
+      if: ${{ github.event.inputs.deploy == '' || github.event.inputs.deploy == 'yes' }}
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: r-hub/R
+        token: ${{ secrets.DEPLOY_TOKEN }}
+        files: |
+          output/*.deb
+          output/*.rpm
+          output/*.tar.gz
+        name: "R 4.4.2"
+        tag_name: v4.4.2
