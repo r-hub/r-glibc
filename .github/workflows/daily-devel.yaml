@@ -1,0 +1,29 @@
+name: daily-devel-next.yaml
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '55 7 * * *'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: build.yaml
+        inputs: |
+          { "rversion":  "devel",
+            "build":     "yes",
+            "deploy":    "yes",
+            "buildarm":  "yes",
+            "deployarm": "yes" }
+    - uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: build.yaml
+        inputs: |
+          { "rversion":  "next",
+            "build":     "yes",
+            "deploy":    "yes",
+            "buildarm":  "yes",
+            "deployarm": "yes" }
