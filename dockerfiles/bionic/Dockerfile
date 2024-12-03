@@ -255,7 +255,7 @@ RUN ::: TAR.GZ package && : ------------------------------------------ && \
 
 RUN ::: nfpm packager && : ------------------------------------------- && \
     apt-get update && \
-    apt-get install -y gettext-base curl figlet
+    apt-get install -y gettext-base curl
 
 RUN curl -LO "https://github.com/goreleaser/nfpm/releases/download/v2.41.1/nfpm_2.41.1_$(dpkg --print-architecture).deb" && \
     apt install -y ./nfpm_*.deb && \
