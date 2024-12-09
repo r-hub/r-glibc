@@ -188,7 +188,7 @@ RUN cd R-${R_VERSION} && \
     --with-included-gettext \
     --with-static-cairo \
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/R/${R_VERSION}-glibc/lib/R/lib/pkgconfig" \
-    BLAS_LIBS="-lopenblas -lpthread" \
+    BLAS_LIBS="-lopenblas -lm -lpthread" \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib
 
