@@ -1,0 +1,31 @@
+diff --git a/configure b/configure
+index f30284e..fa508ea 100755
+--- a/configure
++++ b/configure
+@@ -44446,7 +44446,7 @@ then :
+   printf %s "(cached) " >&6
+ else $as_nop
+   r_save_LIBS="${LIBS}"
+-LIBS="${LIBS} -licuuc -licui18n"
++LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
+ if test "$cross_compiling" = yes
+ then :
+   r_cv_icu=no
+@@ -44495,7 +44495,7 @@ if test "x${r_cv_icu}" = xyes; then
+ 
+ printf "%s\n" "#define USE_ICU 1" >>confdefs.h
+ 
+-  LIBS="${LIBS} -licuuc -licui18n"
++  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
+ else
+   use_ICU=no
+ fi
+@@ -47606,7 +47606,7 @@ int main(int argc, const char * argv[])
+ {
+ #ifdef LIBCURL_VERSION_MAJOR
+ #if LIBCURL_VERSION_MAJOR > 7
+-  exit(1);
++  exit(0);
+ #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 28
+   exit(0);
+ #else
