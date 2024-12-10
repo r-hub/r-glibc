@@ -120,7 +120,7 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr/ -name libz.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libbz2.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name liblzma.a` /opt/r-lib/lib/ && \
-    cp `find /usr/ -name "libpcre2*.a"` /opt/r-lib/lib/ && \
+    cp `find /usr/ -name "libpcre*.a"` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libssl.a` `find /usr/ -name libcrypto.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libopenblas.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libtinfo.a` /opt/r-lib/lib/ && \
@@ -146,7 +146,8 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libgraphite2.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libthai.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libdatrie.a` /opt/r-lib/lib/ && \
-    cp `find /usr -name libtermcap.a` /opt/r-lib/lib/
+    cp `find /usr -name libtermcap.a` /opt/r-lib/lib/ && \
+    ln -s libthai.pc /usr/lib/aarch64-linux-gnu/pkgconfig/thai.pc
 
 ARG R_VERSION
 
