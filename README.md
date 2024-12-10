@@ -35,11 +35,13 @@ We have `x86_64` and `aarch64` builds.
 
 ## Supported R versions
 
-* R 4.1.0 to R 4.4.2.
+* R 3.6.0 to R 4.4.2.
 * Daily development snapshot (`devel`).
 * Daily snapshot of the next (patched, beta, alpha or RC) version of
   R (`next`).
 * List of all supported versions:
+  • `3.6.0` • `3.6.1` • `3.6.2` • `3.6.3`
+  • `4.0.0` • `4.0.1` • `4.0.2` • `4.0.3` • `4.0.4` • `4.0.5`
   • `4.1.0` • `4.1.1` • `4.1.2` • `4.1.3`
   • `4.2.0` • `4.2.1` • `4.2.2` • `4.2.3`
   • `4.3.0` • `4.3.1` • `4.3.2` • `4.3.3`
