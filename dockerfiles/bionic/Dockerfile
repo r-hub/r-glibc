@@ -147,7 +147,7 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libthai.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libdatrie.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libtermcap.a` /opt/r-lib/lib/ && \
-    ln -s libthai.pc /usr/lib/aarch64-linux-gnu/pkgconfig/thai.pc
+    ln -s libthai.pc /usr/lib/$(arch)-linux-gnu/pkgconfig/thai.pc
 
 ARG R_VERSION
 
