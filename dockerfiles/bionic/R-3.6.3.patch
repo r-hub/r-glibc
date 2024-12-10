@@ -1,0 +1,54 @@
+diff --git a/configure b/configure
+index 976de50..bd8a807 100755
+--- a/configure
++++ b/configure
+@@ -39822,7 +39822,7 @@ if ${r_cv_icu+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   r_save_LIBS="${LIBS}"
+-LIBS="${LIBS} -licuuc -licui18n"
++LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
+ if test "$cross_compiling" = yes; then :
+   r_cv_icu=no
+ else
+@@ -39869,7 +39869,7 @@ if test "x${r_cv_icu}" = xyes; then
+ 
+ $as_echo "#define USE_ICU 1" >>confdefs.h
+ 
+-  LIBS="${LIBS} -licuuc -licui18n"
++  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
+ else
+   use_ICU=no
+ fi
+@@ -40952,10 +40952,10 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
+       else
+          xmodlist="${modlist}"
+       fi
+-    CAIRO_CPPFLAGS=`"${PKG_CONFIG}" --cflags ${modlist}`
+-    CAIROX11_CPPFLAGS=`"${PKG_CONFIG}" --cflags ${xmodlist}`
+-    CAIRO_LIBS=`"${PKG_CONFIG}" --libs ${modlist}`
+-    CAIROX11_LIBS=`"${PKG_CONFIG}" --libs ${xmodlist}`
++    CAIRO_CPPFLAGS=`"${PKG_CONFIG}" --cflags --static ${modlist}`
++    CAIROX11_CPPFLAGS=`"${PKG_CONFIG}" --cflags --static ${xmodlist}`
++    CAIRO_LIBS=`"${PKG_CONFIG}" --libs --static ${modlist}`
++    CAIROX11_LIBS=`"${PKG_CONFIG}" --libs --static ${xmodlist}`
+ 
+     CPPFLAGS="${CPPFLAGS} ${CAIRO_CPPFLAGS}"
+     LIBS="${LIBS} ${CAIRO_LIBS}"
+@@ -42905,7 +42905,7 @@ int main()
+ {
+ #ifdef LIBCURL_VERSION_MAJOR
+ #if LIBCURL_VERSION_MAJOR > 7
+-  exit(1);
++  exit(0);
+ #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 22
+   exit(0);
+ #else
+@@ -43266,6 +43266,7 @@ done
+     CPPFLAGS=${save_CPPFLAGS}
+     if test "x${ac_cv_header_tiffio_h}" = xyes ; then
+       TIF_LIBS=`"${PKG_CONFIG}" --libs ${mod}`
++      TIF_LIBS="${TIF_LIBS} -ljbig"
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for TIFFOpen in -ltiff" >&5
+ $as_echo_n "checking for TIFFOpen in -ltiff... " >&6; }
+ if ${ac_cv_lib_tiff_TIFFOpen+:} false; then :

@@ -170,7 +170,7 @@ RUN if [ "${R_VERSION}" = "devel" ]; then \
       curl -LO https://cran.rstudio.com/src/base-prerelease/R-patched.tar.gz; \
       mv R-patched.tar.gz R-next.tar.gz; \
     else \
-      curl -LO https://cran.r-project.org/src/base/R-4/R-${R_VERSION}.tar.gz; \
+      curl -LO https://cran.r-project.org/src/base/R-${R_VERSION%*.*.*}/R-${R_VERSION}.tar.gz; \
     fi
 RUN tar xzf R-${R_VERSION}.tar.gz
 RUN if [ -e R-patched ]; then mv R-patched R-next; fi
