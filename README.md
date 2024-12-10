@@ -48,9 +48,6 @@ We have `x86_64` and `aarch64` builds.
   • `4.4.0` • `4.4.1` • `4.4.2`
   • `next` • `devel`.
 
-More versions are coming soon ([#13](
-  https://github.com/r-hub/r-glibc/issues/13)).
-
 ## Known limitations
 
 * No X11 support ([#18](https://github.com/r-hub/r-glibc/issues/18)).
@@ -63,8 +60,6 @@ More versions are coming soon ([#13](
   fonts ([#19](https://github.com/r-hub/r-glibc/issues/19)).
 * The included system libraries are relatively old ([#20](
   https://github.com/r-hub/r-glibc/issues/20)).
-* The available R versions are limited currently ([#13](
-  https://github.com/r-hub/r-glibc/issues/13)).
 * r-glibc does not work on platforms that do not use GNU libc, e.g. on
   Alpine Linux.
 
