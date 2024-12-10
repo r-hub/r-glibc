@@ -24,8 +24,9 @@ following platforms:
 
 <small>
 * On OpenSUSE and SUSE Linux Enterprise systems R packages that use the
-ISO Latin 1 character encoding need the `glibc-locale-base` package
-installed. Install it with `zypper install glibc-locale-base`.
+ISO Latin 1 character encoding need the <code>glibc-locale-base</code>
+package installed. Install it with <code>zypper install
+glibc-locale-base</code>.
 </small>
 
 ## Architectures
@@ -34,25 +35,34 @@ We have `x86_64` and `aarch64` builds.
 
 ## Supported R versions
 
-* R 4.3.0 to R 4.4.2.
+* R 4.1.0 to R 4.4.2.
 * Daily development snapshot (`devel`).
 * Daily snapshot of the next (patched, beta, alpha or RC) version of
   R (`next`).
-* List of all supported versions: • `4.3.0` • `4.3.1` • `4.3.2` • `4.3.3` •
-  `4.4.0` • `4.4.1` • `4.4.2` • `next` • `devel`.
+* List of all supported versions:
+  • `4.1.0` • `4.1.1` • `4.1.2` • `4.1.3`
+  • `4.2.0` • `4.2.1` • `4.2.2` • `4.2.3`
+  • `4.3.0` • `4.3.1` • `4.3.2` • `4.3.3`
+  • `4.4.0` • `4.4.1` • `4.4.2`
+  • `next` • `devel`.
 
-More versions are coming soon (#13).
+More versions are coming soon ([#13](
+  https://github.com/r-hub/r-glibc/issues/13)).
 
 ## Known limitations
 
-* No X11 support (#18).
+* No X11 support ([#18](https://github.com/r-hub/r-glibc/issues/18)).
 * `bmp()`, `png()`, `tiff()`, `jpeg()` default to `type = "Xlib"` so they
-  don't work without an explicit `type = "cairo"` argument (#15).
-* No built-in libdeflate support (#12).
+  don't work without an explicit `type = "cairo"` argument ([#15](
+  https://github.com/r-hub/r-glibc/issues/15)).
+* No built-in libdeflate support ([#12](
+  https://github.com/r-hub/r-glibc/issues/12)).
 * The built-in fontconfig library might not work with the system's
-  fonts (#19).
-* The included system libraries are relatively old (#20).
-* The available R versions are limited currently (#13).
+  fonts ([#19](https://github.com/r-hub/r-glibc/issues/19)).
+* The included system libraries are relatively old ([#20](
+  https://github.com/r-hub/r-glibc/issues/20)).
+* The available R versions are limited currently ([#13](
+  https://github.com/r-hub/r-glibc/issues/13)).
 * r-glibc does not work on platforms that do not use GNU libc, e.g. on
   Alpine Linux.
 
