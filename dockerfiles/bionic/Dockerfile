@@ -145,7 +145,8 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libglib-2.0.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libgraphite2.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libthai.a` /opt/r-lib/lib/ && \
-    cp `find /usr -name libdatrie.a` /opt/r-lib/lib/
+    cp `find /usr -name libdatrie.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libtermcap.a` /opt/r-lib/lib/
 
 ARG R_VERSION
 
