@@ -103,9 +103,12 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libharfbuzz-dev_1.7.2-1ubuntu1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libdatrie-dev_0.2.10-7_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpcre3-dev_8.39-9ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libglib2.0-dev_2.56.4-0ubuntu0.18.04.9_$ARCH.deb && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
         libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* \
-        libgcc* libgfortran* libgraphite2* libpango* libharfbuzz* && \
+        libgcc* libgfortran* libgraphite2* libpango* libharfbuzz* libdatrie* libpcre3* libglib* && \
       rm *.deb; \
     fi
 
