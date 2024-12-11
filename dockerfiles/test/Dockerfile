@@ -1,5 +1,5 @@
 
-ARG CONTAINER
+ARG CONTAINER=r-hub/failure
 FROM ghcr.io/gaborcsardi/figlet AS figlet
 FROM ${CONTAINER}
 COPY --from=figlet /usr/local /usr/local

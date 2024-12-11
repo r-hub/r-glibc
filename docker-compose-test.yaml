@@ -1,0 +1,119 @@
+services:
+  ubuntu-1804:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: ubuntu:18.04
+
+  ubuntu-2004:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: ubuntu:20.04
+
+  ubuntu-2204:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: ubuntu:22.04
+
+  ubuntu-2404:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: ubuntu:24.04
+
+  debian-11:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: debian:11
+
+  debian-12:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: debian:12
+
+  almalinux-8:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: almalinux:8
+
+  almalinux-9:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: almalinux:9
+
+  rockyinux-8:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: rockylinux:8
+
+  rockylinux-9:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: rockylinux:9
+
+  rhel-8:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: redhat/ubi8
+
+  rhel-9:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: redhat/ubi9
+
+  opensuse-155:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: opensuse/leap:15.5
+
+  opensuse-156:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: opensuse/leap:15.6
+
+  fedora-39:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: fedora:39
+
+  fedora-40:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: fedora:40
+
+  fedora-41:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: fedora:41

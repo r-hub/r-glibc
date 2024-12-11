@@ -97,28 +97,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build ]
 
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - { container: 'ubuntu:18.04'       }
-          - { container: 'ubuntu:20.04'       }
-          - { container: 'ubuntu:22.04'       }
-          - { container: 'ubuntu:24.04'       }
-          - { container: 'debian:11'          }
-          - { container: 'debian:12'          }
-          - { container: 'almalinux:8'        }
-          - { container: 'almalinux:9'        }
-          - { container: 'rockylinux:8'       }
-          - { container: 'rockylinux:9'       }
-          - { container: 'redhat/ubi8'        }
-          - { container: 'redhat/ubi9'        }
-          - { container: 'opensuse/leap:15.5' }
-          - { container: 'opensuse/leap:15.6' }
-          - { container: 'fedora:39'          }
-          - { container: 'fedora:40'          }
-          - { container: 'fedora:41'          }
-
     steps:
 
     - name: Checkout
@@ -133,12 +111,9 @@ jobs:
         merge-multiple: true
 
     - name: Test
-      env:
-        R_VERSION: '${{ github.event.inputs.rversion }}'
-        CONTAINER: ${{ matrix.config.container }}
       run: |
         rm -f output/*aarch64* output/*arm64*
-        docker compose build test
+        docker buildx bake -f docker-compose-test.yaml
 
   deploy:
     name: deploy
@@ -235,28 +210,6 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/${{ github.workspace }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - { container: 'ubuntu:18.04'       }
-          - { container: 'ubuntu:20.04'       }
-          - { container: 'ubuntu:22.04'       }
-          - { container: 'ubuntu:24.04'       }
-          - { container: 'debian:11'          }
-          - { container: 'debian:12'          }
-          - { container: 'almalinux:8'        }
-          - { container: 'almalinux:9'        }
-          - { container: 'rockylinux:8'       }
-          - { container: 'rockylinux:9'       }
-          # - { container: 'redhat/ubi8'      }
-          # - { container: 'redhat/ubi9'      }
-          - { container: 'opensuse/leap:15.5' }
-          - { container: 'opensuse/leap:15.6' }
-          - { container: 'fedora:39'          }
-          - { container: 'fedora:40'          }
-          - { container: 'fedora:41'          }
-
     steps:
 
     - name: Install Docker, git
@@ -275,12 +228,9 @@ jobs:
         merge-multiple: true
 
     - name: Test
-      env:
-        R_VERSION: '${{ github.event.inputs.rversion }}'
-        CONTAINER: ${{ matrix.config.container }}
       run: |
         rm -f output/*x86_64* output/*amd64*
-        docker compose build test
+        docker buildx bake -f docker-compose-test.yaml
 
   deployarm:
     name: deploy (aarch64)
