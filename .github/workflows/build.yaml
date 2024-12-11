@@ -214,7 +214,8 @@ jobs:
 
     - name: Install Docker, git
       run: |
-        apt-get update && apt-get install -y docker.io docker-compose-v2 git
+        apt-get update && apt-get install -y \
+          docker.io docker-compose-v2 docker-buildx git
 
     - name: Checkout
       uses: actions/checkout@v4
