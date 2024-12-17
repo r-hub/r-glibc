@@ -16,7 +16,7 @@ RUN apt-get update && \
     liblzma-dev libpcre2-dev libssl-dev libopenblas-dev \
     libjpeg-turbo8-dev libpng-dev libtiff-dev libicu-dev \
     libcairo-dev libffi-dev libpango1.0-dev libthai-dev \
-    libdatrie-dev
+    libdatrie-dev texinfo
 
 # roll our own libcurl, the original has way too many depe
 RUN curl -LO https://curl.haxx.se/download/curl-8.11.0.tar.gz
