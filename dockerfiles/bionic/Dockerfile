@@ -162,6 +162,23 @@ RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/whi
     mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/tools && \
     cp opt/r-lib/bin/which /opt/R/${R_VERSION}-glibc/lib/R/tools
 
+# libdeflate is not in Bionic, so install separately.
+# Only needed for R >= 4.4.0, so do it late (=here), for better caching
+# over R versions.
+RUN if dpkg --compare-versions ${R_VERSION} ge 4.4.0; then \
+      apt-get update && apt-get install -y cmake && \
+      curl -LO https://github.com/ebiggers/libdeflate/releases/download/v1.23/libdeflate-1.23.tar.gz && \
+      tar xzf libdeflate-1.23.tar.gz && \
+      rm libdeflate-1.23.tar.gz && \
+      cd libdeflate-1.23 && \
+      mkdir -p build && \
+      cd build && \
+      cmake .. && \
+      make && \
+      make install && \
+      cp /usr/local/lib/libdeflate.a /opt/r-lib/lib/; \
+    fi
+
 # R should not default to linking to /opt/r-lib, so create some symlinks
 RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R && \
     ln -s /opt/r-lib/lib /opt/R/${R_VERSION}-glibc/lib/R/ && \

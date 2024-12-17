@@ -9,5 +9,5 @@ stopifnot(capabilities()["ICU"])
 stopifnot(capabilities()["libcurl"])
 
 stopifnot(extSoftVersion()["xz"] != "")
-# stopifnot(extSoftVersion()["libdeflate"] != "") TODO
+stopifnot(extSoftVersion()["libdeflate"] != "")
 stopifnot(extSoftVersion()["readline"] != "")
