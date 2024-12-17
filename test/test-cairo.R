@@ -3,7 +3,7 @@ R.home()
 # -------------------------------------------------------------------------
 
 tmp <- tempfile(fileext = ".png")
-png(tmp, type = "cairo")
+png(tmp)
 plot(1:10)
 dev.off()
 
@@ -14,7 +14,7 @@ stopifnot(grepl("PNG", out))
 # -------------------------------------------------------------------------
 
 tmp <- tempfile(fileext = "jpg")
-jpeg(tmp, type = "cairo")
+jpeg(tmp)
 plot(1:10)
 dev.off()
 
@@ -25,7 +25,7 @@ stopifnot(grepl("JPEG", out))
 # -------------------------------------------------------------------------
 
 tmp <- tempfile(fileext = "tiff")
-tiff(tmp, type = "cairo")
+tiff(tmp)
 plot(1:10)
 dev.off()
 
