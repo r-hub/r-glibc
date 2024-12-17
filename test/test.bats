@@ -47,7 +47,12 @@
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
 
-@test "install package w/ BLAS/LAPACK dependency {
+@test "install package w/ BLAS/LAPACK dependency" {
   run R -q -f test-install-blas.R
+  [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
+}
+
+@test "CVE-2024-27322" {
+  run R -q -f test-cve-2024-27322.R
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }

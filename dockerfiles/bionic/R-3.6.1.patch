@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 976de50..bd8a807 100755
+index 12569ac..e90ee1e 100755
 --- a/configure
 +++ b/configure
-@@ -39822,7 +39822,7 @@ if ${r_cv_icu+:} false; then :
+@@ -39596,7 +39596,7 @@ if ${r_cv_icu+:} false; then :
    $as_echo_n "(cached) " >&6
  else
    r_save_LIBS="${LIBS}"
@@ -11,16 +11,16 @@ index 976de50..bd8a807 100755
  if test "$cross_compiling" = yes; then :
    r_cv_icu=no
  else
-@@ -39869,7 +39869,7 @@ if test "x${r_cv_icu}" = xyes; then
- 
+@@ -39643,7 +39643,7 @@ if test "x${r_cv_icu}" = xyes; then
+
  $as_echo "#define USE_ICU 1" >>confdefs.h
- 
+
 -  LIBS="${LIBS} -licuuc -licui18n"
 +  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
  else
    use_ICU=no
  fi
-@@ -40952,10 +40952,10 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
+@@ -40726,10 +40726,10 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
        else
           xmodlist="${modlist}"
        fi
@@ -32,10 +32,10 @@ index 976de50..bd8a807 100755
 +    CAIROX11_CPPFLAGS=`"${PKG_CONFIG}" --cflags --static ${xmodlist}`
 +    CAIRO_LIBS=`"${PKG_CONFIG}" --libs --static ${modlist}`
 +    CAIROX11_LIBS=`"${PKG_CONFIG}" --libs --static ${xmodlist}`
- 
+
      CPPFLAGS="${CPPFLAGS} ${CAIRO_CPPFLAGS}"
      LIBS="${LIBS} ${CAIRO_LIBS}"
-@@ -42905,7 +42905,7 @@ int main()
+@@ -42679,7 +42679,7 @@ int main()
  {
  #ifdef LIBCURL_VERSION_MAJOR
  #if LIBCURL_VERSION_MAJOR > 7
@@ -44,7 +44,7 @@ index 976de50..bd8a807 100755
  #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 22
    exit(0);
  #else
-@@ -43266,6 +43266,7 @@ done
+@@ -43040,6 +43040,7 @@ done
      CPPFLAGS=${save_CPPFLAGS}
      if test "x${ac_cv_header_tiffio_h}" = xyes ; then
        TIF_LIBS=`"${PKG_CONFIG}" --libs ${mod}`
@@ -52,3 +52,58 @@ index 976de50..bd8a807 100755
        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for TIFFOpen in -ltiff" >&5
  $as_echo_n "checking for TIFFOpen in -ltiff... " >&6; }
  if ${ac_cv_lib_tiff_TIFFOpen+:} false; then :
+diff --git a/doc/NEWS.Rd b/doc/NEWS.Rd
+index fd2d6d2..606bd78 100644
+--- a/doc/NEWS.Rd
++++ b/doc/NEWS.Rd
+@@ -6,6 +6,12 @@
+ \encoding{UTF-8}
+
+ \section{\Rlogo CHANGES IN R 3.6.1}{
++  \subsection{CHANGES IN POSIT'S BUILD FROM \url{https://github.com/r-hub/r-glibc}}{
++    \itemize{
++      \item readRDS() and unserialize() now signal an error instead of
++      returning a PROMSXP, to fix CVE-2024-27322.
++    }
++  }
+
+   \subsection{INSTALLATION on a UNIX-ALIKE}{
+     \itemize{
+diff --git a/src/main/serialize.c b/src/main/serialize.c
+index 323924c..14ba584 100644
+--- a/src/main/serialize.c
++++ b/src/main/serialize.c
+@@ -2549,6 +2549,13 @@ do_serializeToConn(SEXP call, SEXP op, SEXP args, SEXP env)
+     return R_NilValue;
+ }
+
++static SEXP checkNotPromise(SEXP val)
++{
++    if (TYPEOF(val) == PROMSXP)
++	error(_("cannot return a promise (PROMSXP) object"));
++    return val;
++}
++
+ /* unserializeFromConn(conn, hook) used from readRDS().
+    It became public in R 2.13.0, and that version added support for
+    connections internally */
+@@ -2598,7 +2605,7 @@ do_unserializeFromConn(SEXP call, SEXP op, SEXP args, SEXP env)
+ 	con->close(con);
+ 	UNPROTECT(1);
+     }
+-    return ans;
++    return checkNotPromise(ans);
+ }
+
+ /*
+@@ -3203,8 +3210,8 @@ SEXP attribute_hidden
+ do_serialize(SEXP call, SEXP op, SEXP args, SEXP env)
+ {
+     checkArity(op, args);
+-    if (PRIMVAL(op) == 2) return R_unserialize(CAR(args), CADR(args));
+-
++    if (PRIMVAL(op) == 2) //return R_unserialize(CAR(args), CADR(args));
++	return checkNotPromise(R_unserialize(CAR(args), CADR(args)));
+     SEXP object, icon, type, ver, fun;
+     object = CAR(args); args = CDR(args);
+     icon = CAR(args); args = CDR(args);
