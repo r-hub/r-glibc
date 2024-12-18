@@ -69,19 +69,25 @@ services:
       args:
         CONTAINER: rockylinux:9
 
-  rhel-8:
-    build:
-      context: .
-      dockerfile: dockerfiles/test/Dockerfile
-      args:
-        CONTAINER: redhat/ubi8
+  # rhel-8:
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfiles/test/Dockerfile
+  #     args:
+  #       CONTAINER: redhat/ubi8
+  #     secrets:
+  #       - REDHAT_ORG_RHEL8
+  #       - REDHAT_ACTIVATION_KEY_RHEL8
 
-  rhel-9:
-    build:
-      context: .
-      dockerfile: dockerfiles/test/Dockerfile
-      args:
-        CONTAINER: redhat/ubi9
+  # rhel-9:
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfiles/test/Dockerfile
+  #     args:
+  #       CONTAINER: redhat/ubi9
+  #     secrets:
+  #       - REDHAT_ORG_RHEL9
+  #       - REDHAT_ACTIVATION_KEY_RHEL9
 
   opensuse-155:
     build:
@@ -117,3 +123,13 @@ services:
       dockerfile: dockerfiles/test/Dockerfile
       args:
         CONTAINER: fedora:41
+
+secrets:
+  REDHAT_ORG_RHEL8:
+    environment: REDHAT_ORG_RHEL8
+  REDHAT_ACTIVATION_KEY_RHEL8:
+    environment: REDHAT_ACTIVATION_KEY_RHEL8
+  REDHAT_ORG_RHEL9:
+    environment: REDHAT_ORG_RHEL9
+  REDHAT_ACTIVATION_KEY_RHEL9:
+    environment: REDHAT_ACTIVATION_KEY_RHEL9

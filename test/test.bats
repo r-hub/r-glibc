@@ -56,3 +56,13 @@
   run R -q -f test-cve-2024-27322.R
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
+
+@test "X11" {
+  Xvfb :1 -screen 0 1280x1024x24 &
+  pid=$!
+  trap "kill -15 $pid || kill -9 $pid" EXIT
+  export DISPLAY=:1
+  run R -q -f test-x11.R
+  kill -15 $pid 2>/dev/null
+  [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
+}
