@@ -114,9 +114,20 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libdatrie-dev_0.2.10-7_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpcre3-dev_8.39-9ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libglib2.0-dev_2.56.4-0ubuntu0.18.04.9_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libsm-dev_1.2.2-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxext-dev_1.3.3-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libx11-dev_1.6.4-3ubuntu0.4_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxt-dev_1.1.5-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libice-dev_1.0.9-2ubuntu0.18.04.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxrender-dev_0.9.10-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxcb1-dev_1.13-2.ubuntu18.04_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxdmcp-dev_1.1.2-3_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libbsd-dev_0.8.7-1ubuntu0.1_$ARCH.deb && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
         libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* \
-        libgcc* libgfortran* libgraphite2* libpango* libharfbuzz* libdatrie* libpcre3* libglib* && \
+        libgcc* libgfortran* libgraphite2* libpango* libharfbuzz* libdatrie* libpcre3* \
+        libglib* libsm* libxext* libx11* libxt* libice* libxrender* libxcb1* libxdmcp* \
+        libbsd* && \
       rm *.deb; \
     fi
 
