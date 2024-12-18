@@ -114,6 +114,11 @@ jobs:
       run: |
         rm -f output/*aarch64* output/*arm64*
         docker buildx bake -f docker-compose-test.yaml
+      env:
+        REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
+        REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
+        REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
+        REDHAT_ACTIVATION_KEY_RHEL9: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL9 }}
 
   deploy:
     name: deploy
@@ -232,6 +237,11 @@ jobs:
       run: |
         rm -f output/*x86_64* output/*amd64*
         docker buildx bake -f docker-compose-test.yaml
+      env:
+        REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
+        REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
+        REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
+        REDHAT_ACTIVATION_KEY_RHEL9: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL9 }}
 
   deployarm:
     name: deploy (aarch64)

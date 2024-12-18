@@ -16,7 +16,7 @@ RUN apt-get update && \
     liblzma-dev libpcre2-dev libssl-dev libopenblas-dev \
     libjpeg-turbo8-dev libpng-dev libtiff-dev libicu-dev \
     libcairo-dev libffi-dev libpango1.0-dev libthai-dev \
-    libdatrie-dev texinfo
+    libdatrie-dev texinfo libxt-dev uuid-dev libbsd-dev
 
 # roll our own libcurl, the original has way too many depe
 RUN curl -LO https://curl.haxx.se/download/curl-8.11.0.tar.gz
@@ -64,10 +64,18 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libglib2.0-dev_2.56.4-0ubuntu0.18.04.9_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxdmcp-dev_1.1.2-3_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxt-dev_1.1.5-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libsm-dev_1.2.2-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libx11-dev_1.6.4-3ubuntu0.4_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libbsd-dev_0.8.7-1ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxrender-dev_0.9.10-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxext-dev_1.3.3-1_$ARCH.deb && \
       apt-get update && \
       apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
       dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* \
-        libpng* libpixman* libpango* libglib* libgraphite2* && \
+        libpng* libpixman* libpango* libglib* libgraphite2* libxdmcp* \
+        libxt* libsm* libx11* libbsd* libxrender* libxext* && \
       rm *.deb; \
     fi
 
@@ -151,7 +159,19 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libthai.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libdatrie.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libtermcap.a` /opt/r-lib/lib/ && \
-    ln -s libthai.pc /usr/lib/$(arch)-linux-gnu/pkgconfig/thai.pc
+    ln -s libthai.pc /usr/lib/$(arch)-linux-gnu/pkgconfig/thai.pc && \
+    cp `find /usr -name libXt.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libSM.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libICE.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libX11.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libuuid.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libbsd.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libxcb.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libXau.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libXdmcp.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libXrender.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libXext.a` /opt/r-lib/lib/
+
 
 ARG R_VERSION
 
@@ -200,16 +220,21 @@ RUN if [ -e R-rc ]; then mv R-rc R-next; fi
 RUN if [ -e R-prerelease ]; then mv R-prerelease R-next; fi
 RUN if [ -e R-pre ]; then mv R-pre R-next; fi
 
-FROM download AS configure
+FROM download AS patch
 
+ENV R_VERSION=${R_VERSION}
 COPY dockerfiles/bionic/R-${R_VERSION}.patch .
 RUN cd R-${R_VERSION} && patch -p1 < ../R-${R_VERSION}.patch
+
+FROM patch AS configure
+
 RUN cd R-${R_VERSION} && \
     PATH="/opt/R/${R_VERSION}-glibc/lib/R/tools:/opt/r-lib/bin:$PATH" \
     ./configure --with-internal-tzcode --prefix=/opt/R/${R_VERSION}-glibc --with-x=no \
     --with-blas --with-lapack --enable-BLAS-shlib=no \
     --with-included-gettext \
     --with-static-cairo \
+    --with-x \
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/R/${R_VERSION}-glibc/lib/R/lib/pkgconfig" \
     BLAS_LIBS="-lopenblas -lm -lpthread" \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
