@@ -193,6 +193,16 @@ RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/whi
     mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/tools && \
     cp opt/r-lib/bin/which /opt/R/${R_VERSION}-glibc/lib/R/tools
 
+# embed a static build of less, to always have a decent PAGER
+RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/less-r-643-r2.apk && \
+    tar xzf less-*.apk opt/r-lib/bin/less && \
+    mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/tools && \
+    cp opt/r-lib/bin/less /opt/R/${R_VERSION}-glibc/lib/R/tools
+
+# also info some term info files, might not be present on minimal containers
+# need to set an env var to point to them, see below
+RUN cp -r /lib/terminfo /opt/R/${R_VERSION}-glibc/lib/R/
+
 # libdeflate is not in Bionic, so install separately.
 # Only needed for R >= 4.4.0, so do it late (=here), for better caching
 # over R versions.
@@ -236,6 +246,8 @@ FROM download AS patch
 ENV R_VERSION=${R_VERSION}
 COPY dockerfiles/bionic/R-${R_VERSION}.patch .
 RUN cd R-${R_VERSION} && patch -p1 < ../R-${R_VERSION}.patch
+RUN echo "TERMINFO=\${TERMINFO-/opt/R/${R_VERSION}-glibc/lib/R/terminfo}" \
+    >> R-${R_VERSION}/etc/Renviron.in
 
 FROM patch AS configure
 
@@ -249,7 +261,8 @@ RUN cd R-${R_VERSION} && \
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/R/${R_VERSION}-glibc/lib/R/lib/pkgconfig" \
     BLAS_LIBS="-lopenblas -lm -lpthread" \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
-    LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib
+    LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib \
+    PAGER=/opt/R/${R_VERSION}-glibc/lib/R/tools/less
 
 FROM configure AS build
 
