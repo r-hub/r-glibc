@@ -264,7 +264,8 @@ RUN cd R-${R_VERSION} && \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib \
     PAGER=/opt/R/${R_VERSION}-glibc/lib/R/tools/less \
     R_BROWSER=xdg-open \
-    R_PDFVIEWER=xdg-open
+    R_PDFVIEWER=xdg-open \
+    R_PRINTCMD=lpr
 
 FROM configure AS build
 
