@@ -55,19 +55,19 @@ jobs:
     - name: Upload tar.gz package
       uses: actions/upload-artifact@v4
       with:
-        name: targz
+        name: ${{ inputs.rversion }}-x86_64-targz
         path: output/*.tar.gz
 
     - name: Upload DEB package
       uses: actions/upload-artifact@v4
       with:
-        name: deb
+        name: ${{ inputs.rversion }}-x86_64-deb
         path: output/*.deb
 
     - name: Upload rpm package
       uses: actions/upload-artifact@v4
       with:
-        name: rpm
+        name: ${{ inputs.rversion }}-x86_64-rpm
         path: output/*.rpm
 
   test:
@@ -85,6 +85,7 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
+        pattern: ${{ inputs.rversion }}-x86_64-*
         path: output
         merge-multiple: true
 
@@ -110,6 +111,7 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
+        pattern: ${{ inputs.rversion }}-x86_64-*
         path: output
         merge-multiple: true
 
@@ -170,19 +172,19 @@ jobs:
     - name: Upload tar.gz package
       uses: actions/upload-artifact@v4
       with:
-        name: targzarm
+        name: ${{ inputs.rversion }}-aarch64-targz
         path: output/*.tar.gz
 
     - name: Upload DEB package
       uses: actions/upload-artifact@v4
       with:
-        name: debarm
+        name: ${{ inputs.rversion }}-aarch64-deb
         path: output/*.deb
 
     - name: Upload rpm package
       uses: actions/upload-artifact@v4
       with:
-        name: rpmarm
+        name: ${{ inputs.rversion }}-aarch64-rpm
         path: output/*.rpm
 
   testarm:
@@ -209,6 +211,7 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
+        pattern: ${{ inputs.rversion }}-aarch64-*
         path: output
         merge-multiple: true
 
@@ -238,6 +241,7 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
+        pattern: ${{ inputs.rversion }}-aarch64-*
         path: output
         merge-multiple: true
 
