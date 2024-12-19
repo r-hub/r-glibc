@@ -262,7 +262,9 @@ RUN cd R-${R_VERSION} && \
     BLAS_LIBS="-lopenblas -lm -lpthread" \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib \
-    PAGER=/opt/R/${R_VERSION}-glibc/lib/R/tools/less
+    PAGER=/opt/R/${R_VERSION}-glibc/lib/R/tools/less \
+    R_BROWSER=xdg-open \
+    R_PDFVIEWER=xdg-open
 
 FROM configure AS build
 
