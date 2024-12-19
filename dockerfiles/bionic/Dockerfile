@@ -203,6 +203,14 @@ RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/les
 # need to set an env var to point to them, see below
 RUN cp -r /lib/terminfo /opt/R/${R_VERSION}-glibc/lib/R/
 
+# static zip and unzip, in case they are not available
+RUN curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/unzip-r-6.0-r14.apk && \
+    curl -LO https://github.com/r-hub/r-musl/releases/download/v3.19/$(arch)/zip-r-3.0-r12.apk && \
+    tar xzf unzip-*.apk opt/r-lib/bin/unzip && \
+    tar xzf zip-*.apk opt/r-lib/bin/zip && \
+    mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/tools && \
+    cp opt/r-lib/bin/unzip opt/r-lib/bin/zip /opt/R/${R_VERSION}-glibc/lib/R/tools
+
 # libdeflate is not in Bionic, so install separately.
 # Only needed for R >= 4.4.0, so do it late (=here), for better caching
 # over R versions.
@@ -263,6 +271,8 @@ RUN cd R-${R_VERSION} && \
     CPPFLAGS=-I/opt/R/${R_VERSION}-glibc/lib/R/include \
     LDFLAGS=-L/opt/R/${R_VERSION}-glibc/lib/R/lib \
     PAGER=/opt/R/${R_VERSION}-glibc/lib/R/tools/less \
+    R_ZIPCMD=/opt/R/${R_VERSION}-glibc/lib/R/tools/zip \
+    R_UNZIPCMD=/opt/R/${R_VERSION}-glibc/lib/R/tools/unzip \
     R_BROWSER=xdg-open \
     R_PDFVIEWER=xdg-open \
     R_PRINTCMD=lpr
