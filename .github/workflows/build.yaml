@@ -41,236 +41,36 @@ on:
         default: 'no'
 
 jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      rversions: ${{ steps.setup-matrix.outputs.rversions }}
+    steps:
+    - name: Set up builds
+      id: setup-matrix
+      run: |
+        rversions=$(echo '"${{ inputs.rversion }}"' | jq -c 'split(",")')
+        echo "rversions=$rversions" >> $GITHUB_OUTPUT
+        cat $GITHUB_OUTPUT
+
+  debug:
+    needs: setup-matrix
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo "${{ needs.setup-matrix.outputs.rversions }}"
+
   build:
-    if: ${{ github.event.inputs.build == '' || github.event.inputs.build == 'yes' }}
-    name: build
-    runs-on: ubuntu-latest
-    env:
-      R_VERSION: '${{ github.event.inputs.rversion }}'
-
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 10
-
-    - name: Build
-      env:
-        TARGET: build
-      run: |
-        docker compose build bionic
-
-    - name: Test
-      env:
-        TARGET: test
-      run: |
-        docker compose build bionic
-
-    - name: Package
-      env:
-        TARGET: package
-      run: |
-        docker compose build bionic
-        docker compose up bionic
-
-    - name: Upload tar.gz package
-      uses: actions/upload-artifact@v4
-      with:
-        name: targz
-        path: output/*.tar.gz
-
-    - name: Upload DEB package
-      uses: actions/upload-artifact@v4
-      with:
-        name: deb
-        path: output/*.deb
-
-    - name: Upload rpm package
-      uses: actions/upload-artifact@v4
-      with:
-        name: rpm
-        path: output/*.rpm
-
-  test:
-    name: test
-    runs-on: ubuntu-latest
-    needs: [ build ]
-
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 10
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: output
-        merge-multiple: true
-
-    - name: Test
-      run: |
-        rm -f output/*aarch64* output/*arm64*
-        docker compose -f docker-compose-test.yaml build
-      env:
-        COMPOSE_PARALLEL_LIMIT: 1
-        REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
-        REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
-        REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
-        REDHAT_ACTIVATION_KEY_RHEL9: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL9 }}
-
-  deploy:
-    name: deploy
-    if: ${{ github.event.inputs.deploy == '' || github.event.inputs.deploy == 'yes' }}
-    runs-on: ubuntu-latest
-    needs: [ test ]
-
-    steps:
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: output
-        merge-multiple: true
-
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      with:
-        repository: r-hub/R
-        token: ${{ secrets.DEPLOY_TOKEN }}
-        files: |
-          output/*amd64.deb
-          output/*x86_64.rpm
-          output/*x86_64.tar.gz
-        name: '${{ github.event.inputs.rversion }}'
-        tag_name: 'v${{ github.event.inputs.rversion }}'
-
-  buildarm:
-    name: build (aarch64)
-    if: ${{ github.event.inputs.buildarm == '' || github.event.inputs.buildarm == 'yes' }}
-    runs-on: [self-hosted, linux, ARM64]
-    container:
-      image: "ubuntu:22.04"
-      volumes:
-        - ${{ github.workspace }}:/${{ github.workspace }}
-    env:
-      R_VERSION: '${{ github.event.inputs.rversion }}'
-
-    steps:
-
-    - name: Install Docker, git
-      run: |
-        apt-get update && apt-get install -y docker.io docker-compose-v2 git
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 10
-
-    - name: Build
-      env:
-        TARGET: build
-      run: |
-        docker compose build bionic
-
-    - name: Test
-      env:
-        TARGET: test
-      run: |
-        docker compose build bionic
-
-    - name: Package
-      env:
-        TARGET: package
-      run: |
-        cd ${{ github.workspace }}
-        docker compose build bionic
-        docker compose up bionic
-
-    - name: Upload tar.gz package
-      uses: actions/upload-artifact@v4
-      with:
-        name: targzarm
-        path: output/*.tar.gz
-
-    - name: Upload DEB package
-      uses: actions/upload-artifact@v4
-      with:
-        name: debarm
-        path: output/*.deb
-
-    - name: Upload rpm package
-      uses: actions/upload-artifact@v4
-      with:
-        name: rpmarm
-        path: output/*.rpm
-
-  testarm:
-    name: test (aarch64)
-    runs-on: [self-hosted, linux, ARM64]
-    needs: [ buildarm ]
-    container:
-      image: "ubuntu:22.04"
-      volumes:
-        - ${{ github.workspace }}:/${{ github.workspace }}
-
-    steps:
-
-    - name: Install Docker, git
-      run: |
-        apt-get update && apt-get install -y \
-          docker.io docker-compose-v2 docker-buildx git
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 10
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: output
-        merge-multiple: true
-
-    - name: Test
-      run: |
-        rm -f output/*x86_64* output/*amd64*
-        docker compose -f docker-compose-test.yaml build
-      env:
-        COMPOSE_PARALLEL_LIMIT: 1
-        REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
-        REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
-        REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
-        REDHAT_ACTIVATION_KEY_RHEL9: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL9 }}
-
-  deployarm:
-    name: deploy (aarch64)
-    if: ${{ github.event.inputs.deployarm == '' || github.event.inputs.deployarm == 'yes' }}
-    runs-on: [self-hosted, linux, ARM64]
-    needs: [ testarm ]
-    container:
-      image: "ubuntu:22.04"
-      volumes:
-        - ${{ github.workspace }}:/${{ github.workspace }}
-
-    steps:
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: output
-        merge-multiple: true
-
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      with:
-        repository: r-hub/R
-        token: ${{ secrets.DEPLOY_TOKEN }}
-        files: |
-          output/*arm64.deb
-          output/*aarch64.rpm
-          output/*aarch64.tar.gz
-        name: "R ${{ github.event.inputs.rversion }}"
-        tag_name: 'v${{ github.event.inputs.rversion }}'
+    needs: setup-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        rversion: ${{ fromJson(needs.setup-matrix.outputs.rversions) }}
+    uses: ./.github/workflows/build-template.yaml
+    with:
+      rversion: ${{ matrix.rversion }}
+      build: ${{ inputs.build }}
+      deploy: ${{ inputs.deploy }}
+      buildarm: ${{ inputs.buildarm }}
+      deployarm: ${{ inputs.deployarm }}
+    secrets: inherit
