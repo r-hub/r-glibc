@@ -9,5 +9,7 @@ stopifnot(capabilities()["ICU"])
 stopifnot(capabilities()["libcurl"])
 
 stopifnot(extSoftVersion()["xz"] != "")
-stopifnot(extSoftVersion()["libdeflate"] != "")
+if (getRversion() >= "4.4.0") {
+  stopifnot(extSoftVersion()["libdeflate"] != "")
+}
 stopifnot(extSoftVersion()["readline"] != "")

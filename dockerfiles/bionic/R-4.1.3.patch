@@ -1,57 +1,94 @@
-commit c06f7f2518673a75f9b36f2af9caf7b69ab4952e
-Author: luke <luke@00db46b3-68df-0310-9c12-caf00c1e9a41>
-Date:   Sun Mar 31 19:35:58 2024 +0000
-
-    readRDS() and unserialize() now signal an errorr instead of returning a PROMSXP.
-
-
-    git-svn-id: https://svn.r-project.org/R/trunk@86235 00db46b3-68df-0310-9c12-caf00c1e9a41
-
-diff --git a/src/main/serialize.c b/src/main/serialize.c
-index a389f71311..a190fbf8f3 100644
---- a/src/main/serialize.c
-+++ b/src/main/serialize.c
-@@ -2650,6 +2650,13 @@ do_serializeToConn(SEXP call, SEXP op, SEXP args, SEXP env)
-     return R_NilValue;
- }
-
-+static SEXP checkNotPromise(SEXP val)
-+{
-+    if (TYPEOF(val) == PROMSXP)
-+	error(_("cannot return a promise (PROMSXP) object"));
-+    return val;
-+}
-+
- /* unserializeFromConn(conn, hook) used from readRDS().
-    It became public in R 2.13.0, and that version added support for
-    connections internally */
-@@ -2699,7 +2706,7 @@ do_unserializeFromConn(SEXP call, SEXP op, SEXP args, SEXP env)
- 	con->close(con);
- 	UNPROTECT(1);
-     }
--    return ans;
-+    return checkNotPromise(ans);
- }
-
- /*
-@@ -3330,8 +3337,8 @@ attribute_hidden SEXP
- do_serialize(SEXP call, SEXP op, SEXP args, SEXP env)
+diff --git a/configure b/configure
+index 3304a17..702be54 100755
+--- a/configure
++++ b/configure
+@@ -44287,7 +44287,7 @@ then :
+   printf %s "(cached) " >&6
+ else $as_nop
+   r_save_LIBS="${LIBS}"
+-LIBS="${LIBS} -licuuc -licui18n"
++LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
+ if test "$cross_compiling" = yes
+ then :
+   r_cv_icu=no
+@@ -44336,7 +44336,7 @@ if test "x${r_cv_icu}" = xyes; then
+ 
+ printf "%s\n" "#define USE_ICU 1" >>confdefs.h
+ 
+-  LIBS="${LIBS} -licuuc -licui18n"
++  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
+ else
+   use_ICU=no
+ fi
+@@ -44438,7 +44438,7 @@ ac_x_includes=no
+ ac_x_libraries=no
+ # Do we need to do anything special at all?
+ ac_save_LIBS=$LIBS
+-LIBS="-lX11 $LIBS"
++LIBS="-lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <X11/Xlib.h>
+@@ -44580,7 +44580,7 @@ if test "$ac_x_libraries" = no; then
+   # See if we find them without any special options.
+   # Don't add to $LIBS permanently.
+   ac_save_LIBS=$LIBS
+-  LIBS="-lX11 $LIBS"
++  LIBS="-lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <X11/Xlib.h>
+@@ -44668,6 +44668,7 @@ else
+     X_CFLAGS="$X_CFLAGS -I$x_includes"
+   fi
+ 
++  X_LIBS="-lxcb"
+   # It would also be nice to do this for all -L options, not just this one.
+   if test -n "$x_libraries"; then
+     X_LIBS="$X_LIBS -L$x_libraries"
+@@ -44751,7 +44752,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
+     # Martyn Johnson says this is needed for Ultrix, if the X
+     # libraries were built with DECnet support.  And Karl Berry says
+     # the Alpha needs dnet_stub (dnet does not exist).
+-    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11"
++    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -45259,7 +45260,7 @@ then :
+   printf %s "(cached) " >&6
+ else $as_nop
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lXt ${X_LIBS} -lX11 $LIBS"
++LIBS="-lXt ${X_LIBS} -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -45311,7 +45312,7 @@ if test "x${use_X11}" = "xyes"; then
+ 
+ printf "%s\n" "#define HAVE_X11 1" >>confdefs.h
+ 
+-  X_LIBS="${X_LIBS} -lX11 -lXt"
++  X_LIBS="${X_LIBS} -lX11 -lxcb -lXt -lXau -lXdmcp -lSM -lICE -lbsd"
+ else
+   if test "x${with_x}" != "xno"; then
+     as_fn_error $? "--with-x=yes (default) and X11 headers/libs are not available" "$LINENO" 5
+@@ -47447,7 +47448,7 @@ int main()
  {
-     checkArity(op, args);
--    if (PRIMVAL(op) == 2) return R_unserialize(CAR(args), CADR(args));
--
-+    if (PRIMVAL(op) == 2) //return R_unserialize(CAR(args), CADR(args));
-+	return checkNotPromise(R_unserialize(CAR(args), CADR(args)));
-     SEXP object, icon, type, ver, fun;
-     object = CAR(args); args = CDR(args);
-     icon = CAR(args); args = CDR(args);
+ #ifdef LIBCURL_VERSION_MAJOR
+ #if LIBCURL_VERSION_MAJOR > 7
+-  exit(1);
++  exit(0);
+ #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 28
+   exit(0);
+ #else
 diff --git a/doc/NEWS.Rd b/doc/NEWS.Rd
-index 8b4e587..b4f145e 100644
+index 8b4e587..4e9f4c6 100644
 --- a/doc/NEWS.Rd
 +++ b/doc/NEWS.Rd
 @@ -6,6 +6,13 @@
  \encoding{UTF-8}
-
+ 
  \section{\Rlogo CHANGES IN R 4.1.3}{
 +  \subsection{CHANGES IN POSIT'S BUILD FROM \url{https://github.com/r-hub/r-glibc}}{
 +    \itemize{
@@ -63,34 +100,56 @@ index 8b4e587..b4f145e 100644
    \subsection{NEW FEATURES}{
      \itemize{
        \item The default version of Bioconductor has been changed to
-diff --git a/configure b/configure
-index f30284e..fa508ea 100755
---- a/configure
-+++ b/configure
-@@ -44446,7 +44446,7 @@ then :
-   printf %s "(cached) " >&6
- else $as_nop
-   r_save_LIBS="${LIBS}"
--LIBS="${LIBS} -licuuc -licui18n"
-+LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
- if test "$cross_compiling" = yes
- then :
-   r_cv_icu=no
-@@ -44495,7 +44495,7 @@ if test "x${r_cv_icu}" = xyes; then
-
- printf "%s\n" "#define USE_ICU 1" >>confdefs.h
-
--  LIBS="${LIBS} -licuuc -licui18n"
-+  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
- else
-   use_ICU=no
- fi
-@@ -47606,7 +47606,7 @@ int main(int argc, const char * argv[])
+diff --git a/src/main/serialize.c b/src/main/serialize.c
+index 4db793a..bac27d5 100644
+--- a/src/main/serialize.c
++++ b/src/main/serialize.c
+@@ -2569,6 +2569,13 @@ do_serializeToConn(SEXP call, SEXP op, SEXP args, SEXP env)
+     return R_NilValue;
+ }
+ 
++static SEXP checkNotPromise(SEXP val)
++{
++    if (TYPEOF(val) == PROMSXP)
++	error(_("cannot return a promise (PROMSXP) object"));
++    return val;
++}
++
+ /* unserializeFromConn(conn, hook) used from readRDS().
+    It became public in R 2.13.0, and that version added support for
+    connections internally */
+@@ -2618,7 +2625,7 @@ do_unserializeFromConn(SEXP call, SEXP op, SEXP args, SEXP env)
+ 	con->close(con);
+ 	UNPROTECT(1);
+     }
+-    return ans;
++    return checkNotPromise(ans);
+ }
+ 
+ /*
+@@ -3239,8 +3246,8 @@ SEXP attribute_hidden
+ do_serialize(SEXP call, SEXP op, SEXP args, SEXP env)
  {
- #ifdef LIBCURL_VERSION_MAJOR
- #if LIBCURL_VERSION_MAJOR > 7
--  exit(1);
-+  exit(0);
- #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 28
-   exit(0);
- #else
+     checkArity(op, args);
+-    if (PRIMVAL(op) == 2) return R_unserialize(CAR(args), CADR(args));
+-
++    if (PRIMVAL(op) == 2) //return R_unserialize(CAR(args), CADR(args));
++	return checkNotPromise(R_unserialize(CAR(args), CADR(args)));
+     SEXP object, icon, type, ver, fun;
+     object = CAR(args); args = CDR(args);
+     icon = CAR(args); args = CDR(args);
+diff --git a/src/modules/X11/Makefile.in b/src/modules/X11/Makefile.in
+index 0a118d8..ad9fc2a 100644
+--- a/src/modules/X11/Makefile.in
++++ b/src/modules/X11/Makefile.in
+@@ -20,7 +20,9 @@ ALL_CFLAGS = $(ALL_CFLAGS_LO)
+ ## This relies on ld re-ordering the flags, as X_PRE_LIBS does not
+ ## contain a -L flag but relies on that in X_LIBS.
+ ## This comes from AC_PATH_XTRA so we have not interfered.
+-ALL_X_LIBS = $(X_PRE_LIBS) @CAIROX11_LIBS@ $(X_LIBS) $(X_EXTRA_LIBS)
++CAIRO_X_LIBS = @CAIROX11_LIBS@
++CAIRO_X_LIBS2 := $(CAIRO_X_LIBS:-lX11=-Wl,--whole-archive -lX11 -Wl,--no-whole-archive)
++ALL_X_LIBS = $(X_PRE_LIBS) $(CAIRO_X_LIBS2) $(X_LIBS) $(X_EXTRA_LIBS)
+ 
+ SOURCES = devX11.c rotated.c rbitmap.c 
+ DEPENDS = $(SOURCES:.c=.d)

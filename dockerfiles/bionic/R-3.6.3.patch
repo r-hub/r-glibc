@@ -1,5 +1,5 @@
 diff --git a/configure b/configure
-index 976de50..bd8a807 100755
+index 976de50..c44bfcb 100755
 --- a/configure
 +++ b/configure
 @@ -39822,7 +39822,7 @@ if ${r_cv_icu+:} false; then :
@@ -12,15 +12,59 @@ index 976de50..bd8a807 100755
    r_cv_icu=no
  else
 @@ -39869,7 +39869,7 @@ if test "x${r_cv_icu}" = xyes; then
-
+ 
  $as_echo "#define USE_ICU 1" >>confdefs.h
-
+ 
 -  LIBS="${LIBS} -licuuc -licui18n"
 +  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
  else
    use_ICU=no
  fi
-@@ -40952,10 +40952,10 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
+@@ -40074,7 +40074,7 @@ if test "$ac_x_libraries" = no; then
+   # See if we find them without any special options.
+   # Don't add to $LIBS permanently.
+   ac_save_LIBS=$LIBS
+-  LIBS="-lX11 $LIBS"
++  LIBS="-lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <X11/Xlib.h>
+@@ -40159,6 +40159,7 @@ else
+     X_CFLAGS="$X_CFLAGS -I$x_includes"
+   fi
+ 
++  X_LIBS="-lxcb"
+   # It would also be nice to do this for all -L options, not just this one.
+   if test -n "$x_libraries"; then
+     X_LIBS="$X_LIBS -L$x_libraries"
+@@ -40240,7 +40241,7 @@ rm -f core conftest.err conftest.$ac_objext \
+     # Martyn Johnson says this is needed for Ultrix, if the X
+     # libraries were built with DECnet support.  And Karl Berry says
+     # the Alpha needs dnet_stub (dnet does not exist).
+-    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11"
++    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -40745,7 +40746,7 @@ if ${ac_cv_lib_Xt_XtToolkitInitialize+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lXt ${X_LIBS} -lX11 $LIBS"
++LIBS="-lXt ${X_LIBS} -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -40798,7 +40799,7 @@ if test "x${use_X11}" = "xyes"; then
+ 
+ $as_echo "#define HAVE_X11 1" >>confdefs.h
+ 
+-  X_LIBS="${X_LIBS} -lX11 -lXt"
++  X_LIBS="${X_LIBS} -lX11  -lxcb -lXt -lXau -lXdmcp -lSM -lICE -lbsd"
+ else
+   if test "x${with_x}" != "xno"; then
+     as_fn_error $? "--with-x=yes (default) and X11 headers/libs are not available" "$LINENO" 5
+@@ -40952,10 +40953,10 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
        else
           xmodlist="${modlist}"
        fi
@@ -32,10 +76,10 @@ index 976de50..bd8a807 100755
 +    CAIROX11_CPPFLAGS=`"${PKG_CONFIG}" --cflags --static ${xmodlist}`
 +    CAIRO_LIBS=`"${PKG_CONFIG}" --libs --static ${modlist}`
 +    CAIROX11_LIBS=`"${PKG_CONFIG}" --libs --static ${xmodlist}`
-
+ 
      CPPFLAGS="${CPPFLAGS} ${CAIRO_CPPFLAGS}"
      LIBS="${LIBS} ${CAIRO_LIBS}"
-@@ -42905,7 +42905,7 @@ int main()
+@@ -42905,7 +42906,7 @@ int main()
  {
  #ifdef LIBCURL_VERSION_MAJOR
  #if LIBCURL_VERSION_MAJOR > 7
@@ -44,7 +88,7 @@ index 976de50..bd8a807 100755
  #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 22
    exit(0);
  #else
-@@ -43266,6 +43266,7 @@ done
+@@ -43266,6 +43267,7 @@ done
      CPPFLAGS=${save_CPPFLAGS}
      if test "x${ac_cv_header_tiffio_h}" = xyes ; then
        TIF_LIBS=`"${PKG_CONFIG}" --libs ${mod}`
@@ -53,12 +97,12 @@ index 976de50..bd8a807 100755
  $as_echo_n "checking for TIFFOpen in -ltiff... " >&6; }
  if ${ac_cv_lib_tiff_TIFFOpen+:} false; then :
 diff --git a/doc/NEWS.Rd b/doc/NEWS.Rd
-index bc90d9f..8d93813 100644
+index bc90d9f..f507e7e 100644
 --- a/doc/NEWS.Rd
 +++ b/doc/NEWS.Rd
 @@ -6,6 +6,12 @@
  \encoding{UTF-8}
-
+ 
  \section{\Rlogo CHANGES IN R 3.6.3}{
 +  \subsection{CHANGES IN POSIT'S BUILD FROM \url{https://github.com/r-hub/r-glibc}}{
 +    \itemize{
@@ -66,7 +110,7 @@ index bc90d9f..8d93813 100644
 +      returning a PROMSXP, to fix CVE-2024-27322.
 +    }
 +  }
-
+ 
    \subsection{NEW FEATURES}{
      \itemize{
 diff --git a/src/main/serialize.c b/src/main/serialize.c
@@ -76,7 +120,7 @@ index ce01db3..c47df7f 100644
 @@ -2549,6 +2549,13 @@ do_serializeToConn(SEXP call, SEXP op, SEXP args, SEXP env)
      return R_NilValue;
  }
-
+ 
 +static SEXP checkNotPromise(SEXP val)
 +{
 +    if (TYPEOF(val) == PROMSXP)
@@ -94,7 +138,7 @@ index ce01db3..c47df7f 100644
 -    return ans;
 +    return checkNotPromise(ans);
  }
-
+ 
  /*
 @@ -3203,8 +3210,8 @@ SEXP attribute_hidden
  do_serialize(SEXP call, SEXP op, SEXP args, SEXP env)
@@ -107,3 +151,18 @@ index ce01db3..c47df7f 100644
      SEXP object, icon, type, ver, fun;
      object = CAR(args); args = CDR(args);
      icon = CAR(args); args = CDR(args);
+diff --git a/src/modules/X11/Makefile.in b/src/modules/X11/Makefile.in
+index b0c0af4..a04ad2e 100644
+--- a/src/modules/X11/Makefile.in
++++ b/src/modules/X11/Makefile.in
+@@ -17,7 +17,9 @@ include $(top_builddir)/Makeconf
+ ALL_CPPFLAGS = @BITMAP_CPPFLAGS@ $(R_XTRA_CPPFLAGS) $(X_CFLAGS) @CAIROX11_CPPFLAGS@ \
+   -I$(top_srcdir)/src/library/grDevices/src/cairo $(CPPFLAGS) $(DEFS)
+ ALL_CFLAGS = $(ALL_CFLAGS_LO)
+-ALL_X_LIBS = $(X_PRE_LIBS) @CAIROX11_LIBS@ $(X_LIBS) $(X_EXTRA_LIBS)
++CAIRO_X_LIBS = @CAIROX11_LIBS@
++CAIRO_X_LIBS2 := $(CAIRO_X_LIBS:-lX11=-Wl,--whole-archive -lX11 -Wl,--no-whole-archive)
++ALL_X_LIBS = $(X_PRE_LIBS) $(CAIRO_X_LIBS2) $(X_LIBS) $(X_EXTRA_LIBS)
+ 
+ SOURCES = devX11.c rotated.c rbitmap.c 
+ DEPENDS = $(SOURCES:.c=.d)

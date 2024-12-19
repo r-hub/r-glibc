@@ -1,72 +1,8 @@
-commit c06f7f2518673a75f9b36f2af9caf7b69ab4952e
-Author: luke <luke@00db46b3-68df-0310-9c12-caf00c1e9a41>
-Date:   Sun Mar 31 19:35:58 2024 +0000
-
-    readRDS() and unserialize() now signal an errorr instead of returning a PROMSXP.
-
-
-    git-svn-id: https://svn.r-project.org/R/trunk@86235 00db46b3-68df-0310-9c12-caf00c1e9a41
-
-diff --git a/src/main/serialize.c b/src/main/serialize.c
-index a389f71311..a190fbf8f3 100644
---- a/src/main/serialize.c
-+++ b/src/main/serialize.c
-@@ -2650,6 +2650,13 @@ do_serializeToConn(SEXP call, SEXP op, SEXP args, SEXP env)
-     return R_NilValue;
- }
-
-+static SEXP checkNotPromise(SEXP val)
-+{
-+    if (TYPEOF(val) == PROMSXP)
-+	error(_("cannot return a promise (PROMSXP) object"));
-+    return val;
-+}
-+
- /* unserializeFromConn(conn, hook) used from readRDS().
-    It became public in R 2.13.0, and that version added support for
-    connections internally */
-@@ -2699,7 +2706,7 @@ do_unserializeFromConn(SEXP call, SEXP op, SEXP args, SEXP env)
- 	con->close(con);
- 	UNPROTECT(1);
-     }
--    return ans;
-+    return checkNotPromise(ans);
- }
-
- /*
-@@ -3330,8 +3337,8 @@ attribute_hidden SEXP
- do_serialize(SEXP call, SEXP op, SEXP args, SEXP env)
- {
-     checkArity(op, args);
--    if (PRIMVAL(op) == 2) return R_unserialize(CAR(args), CADR(args));
--
-+    if (PRIMVAL(op) == 2) //return R_unserialize(CAR(args), CADR(args));
-+	return checkNotPromise(R_unserialize(CAR(args), CADR(args)));
-     SEXP object, icon, type, ver, fun;
-     object = CAR(args); args = CDR(args);
-     icon = CAR(args); args = CDR(args);
-diff --git a/doc/NEWS.Rd b/doc/NEWS.Rd
-index 5640a16..5bebf9e 100644
---- a/doc/NEWS.Rd
-+++ b/doc/NEWS.Rd
-@@ -6,6 +6,12 @@
- \encoding{UTF-8}
-
- \section{\Rlogo CHANGES IN R 4.0.5}{
-+  \subsection{CHANGES IN POSIT'S BUILD FROM \url{https://github.com/r-hub/r-glibc}}{
-+    \itemize{
-+      \item readRDS() and unserialize() now signal an error instead of
-+      returning a PROMSXP, to fix CVE-2024-27322.
-+    }
-+  }
-   \subsection{BUG FIXES}{
-     \itemize{
-       \item The change to the internal table in \R 4.0.4 for
 diff --git a/configure b/configure
-index eec8a95..a6e767e 100755
+index 68c9df1..b299d38 100755
 --- a/configure
 +++ b/configure
-@@ -42985,7 +42985,7 @@ if ${r_cv_icu+:} false; then :
+@@ -43133,7 +43133,7 @@ if ${r_cv_icu+:} false; then :
    $as_echo_n "(cached) " >&6
  else
    r_save_LIBS="${LIBS}"
@@ -75,16 +11,60 @@ index eec8a95..a6e767e 100755
  if test "$cross_compiling" = yes; then :
    r_cv_icu=no
  else
-@@ -43032,7 +43032,7 @@ if test "x${r_cv_icu}" = xyes; then
-
+@@ -43180,7 +43180,7 @@ if test "x${r_cv_icu}" = xyes; then
+ 
  $as_echo "#define USE_ICU 1" >>confdefs.h
-
+ 
 -  LIBS="${LIBS} -licuuc -licui18n"
 +  LIBS="${LIBS} -licui18n -licuuc -licudata -lstdc++ -lm -ldl"
  else
    use_ICU=no
  fi
-@@ -44263,10 +44263,11 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
+@@ -43385,7 +43385,7 @@ if test "$ac_x_libraries" = no; then
+   # See if we find them without any special options.
+   # Don't add to $LIBS permanently.
+   ac_save_LIBS=$LIBS
+-  LIBS="-lX11 $LIBS"
++  LIBS="-lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <X11/Xlib.h>
+@@ -43470,6 +43470,7 @@ else
+     X_CFLAGS="$X_CFLAGS -I$x_includes"
+   fi
+ 
++  X_LIBS="-lxcb"
+   # It would also be nice to do this for all -L options, not just this one.
+   if test -n "$x_libraries"; then
+     X_LIBS="$X_LIBS -L$x_libraries"
+@@ -43551,7 +43552,7 @@ rm -f core conftest.err conftest.$ac_objext \
+     # Martyn Johnson says this is needed for Ultrix, if the X
+     # libraries were built with DECnet support.  And Karl Berry says
+     # the Alpha needs dnet_stub (dnet does not exist).
+-    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11"
++    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -44056,7 +44057,7 @@ if ${ac_cv_lib_Xt_XtToolkitInitialize+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lXt ${X_LIBS} -lX11 $LIBS"
++LIBS="-lXt ${X_LIBS} -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -44109,7 +44110,7 @@ if test "x${use_X11}" = "xyes"; then
+ 
+ $as_echo "#define HAVE_X11 1" >>confdefs.h
+ 
+-  X_LIBS="${X_LIBS} -lX11 -lXt"
++  X_LIBS="${X_LIBS} -lX11  -lxcb -lXt -lXau -lXdmcp -lSM -lICE -lbsd"
+ else
+   if test "x${with_x}" != "xno"; then
+     as_fn_error $? "--with-x=yes (default) and X11 headers/libs are not available" "$LINENO" 5
+@@ -44263,10 +44264,11 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
        else
           xmodlist="${modlist}"
        fi
@@ -97,10 +77,10 @@ index eec8a95..a6e767e 100755
 +    CAIRO_LIBS=`"${PKG_CONFIG}" --libs --static ${modlist}`
 +    CAIRO_LIBS="${CAIRO_LIBS} -lpixman-1 -lfontconfig -lfreetype -lpcre -lpng -lexpat -lthai -lz -lm -lpthread"
 +    CAIROX11_LIBS=`"${PKG_CONFIG}" --libs --static ${xmodlist}`
-
+ 
      CPPFLAGS="${CPPFLAGS} ${CAIRO_CPPFLAGS}"
      LIBS="${LIBS} ${CAIRO_LIBS}"
-@@ -46052,7 +46052,7 @@ int main()
+@@ -46180,7 +46182,7 @@ int main()
  {
  #ifdef LIBCURL_VERSION_MAJOR
  #if LIBCURL_VERSION_MAJOR > 7
@@ -109,3 +89,73 @@ index eec8a95..a6e767e 100755
  #elif LIBCURL_VERSION_MAJOR == 7 && LIBCURL_VERSION_MINOR >= 28
    exit(0);
  #else
+diff --git a/doc/NEWS.Rd b/doc/NEWS.Rd
+index 5640a16..ffd4746 100644
+--- a/doc/NEWS.Rd
++++ b/doc/NEWS.Rd
+@@ -6,6 +6,12 @@
+ \encoding{UTF-8}
+ 
+ \section{\Rlogo CHANGES IN R 4.0.5}{
++  \subsection{CHANGES IN POSIT'S BUILD FROM \url{https://github.com/r-hub/r-glibc}}{
++    \itemize{
++      \item readRDS() and unserialize() now signal an error instead of
++      returning a PROMSXP, to fix CVE-2024-27322.
++    }
++  }
+   \subsection{BUG FIXES}{
+     \itemize{
+       \item The change to the internal table in \R 4.0.4 for
+diff --git a/src/main/serialize.c b/src/main/serialize.c
+index 3e8bbe5..4d4001a 100644
+--- a/src/main/serialize.c
++++ b/src/main/serialize.c
+@@ -2558,6 +2558,13 @@ do_serializeToConn(SEXP call, SEXP op, SEXP args, SEXP env)
+     return R_NilValue;
+ }
+ 
++static SEXP checkNotPromise(SEXP val)
++{
++    if (TYPEOF(val) == PROMSXP)
++	error(_("cannot return a promise (PROMSXP) object"));
++    return val;
++}
++
+ /* unserializeFromConn(conn, hook) used from readRDS().
+    It became public in R 2.13.0, and that version added support for
+    connections internally */
+@@ -2607,7 +2614,7 @@ do_unserializeFromConn(SEXP call, SEXP op, SEXP args, SEXP env)
+ 	con->close(con);
+ 	UNPROTECT(1);
+     }
+-    return ans;
++    return checkNotPromise(ans);
+ }
+ 
+ /*
+@@ -3228,8 +3235,8 @@ SEXP attribute_hidden
+ do_serialize(SEXP call, SEXP op, SEXP args, SEXP env)
+ {
+     checkArity(op, args);
+-    if (PRIMVAL(op) == 2) return R_unserialize(CAR(args), CADR(args));
+-
++    if (PRIMVAL(op) == 2) //return R_unserialize(CAR(args), CADR(args));
++	return checkNotPromise(R_unserialize(CAR(args), CADR(args)));
+     SEXP object, icon, type, ver, fun;
+     object = CAR(args); args = CDR(args);
+     icon = CAR(args); args = CDR(args);
+diff --git a/src/modules/X11/Makefile.in b/src/modules/X11/Makefile.in
+index b0c0af4..a04ad2e 100644
+--- a/src/modules/X11/Makefile.in
++++ b/src/modules/X11/Makefile.in
+@@ -17,7 +17,9 @@ include $(top_builddir)/Makeconf
+ ALL_CPPFLAGS = @BITMAP_CPPFLAGS@ $(R_XTRA_CPPFLAGS) $(X_CFLAGS) @CAIROX11_CPPFLAGS@ \
+   -I$(top_srcdir)/src/library/grDevices/src/cairo $(CPPFLAGS) $(DEFS)
+ ALL_CFLAGS = $(ALL_CFLAGS_LO)
+-ALL_X_LIBS = $(X_PRE_LIBS) @CAIROX11_LIBS@ $(X_LIBS) $(X_EXTRA_LIBS)
++CAIRO_X_LIBS = @CAIROX11_LIBS@
++CAIRO_X_LIBS2 := $(CAIRO_X_LIBS:-lX11=-Wl,--whole-archive -lX11 -Wl,--no-whole-archive)
++ALL_X_LIBS = $(X_PRE_LIBS) $(CAIRO_X_LIBS2) $(X_LIBS) $(X_EXTRA_LIBS)
+ 
+ SOURCES = devX11.c rotated.c rbitmap.c 
+ DEPENDS = $(SOURCES:.c=.d)

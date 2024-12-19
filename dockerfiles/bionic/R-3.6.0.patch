@@ -20,6 +20,50 @@ index fad6463..fd8d79c 100755
  else
    use_ICU=no
  fi
+@@ -40074,7 +40074,7 @@ if test "$ac_x_libraries" = no; then
+   # See if we find them without any special options.
+   # Don't add to $LIBS permanently.
+   ac_save_LIBS=$LIBS
+-  LIBS="-lX11 $LIBS"
++  LIBS="-lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <X11/Xlib.h>
+@@ -40159,6 +40159,7 @@ else
+     X_CFLAGS="$X_CFLAGS -I$x_includes"
+   fi
+
++  X_LIBS="-lxcb"
+   # It would also be nice to do this for all -L options, not just this one.
+   if test -n "$x_libraries"; then
+     X_LIBS="$X_LIBS -L$x_libraries"
+@@ -40240,7 +40241,7 @@ rm -f core conftest.err conftest.$ac_objext \
+     # Martyn Johnson says this is needed for Ultrix, if the X
+     # libraries were built with DECnet support.  And Karl Berry says
+     # the Alpha needs dnet_stub (dnet does not exist).
+-    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11"
++    ac_xsave_LIBS="$LIBS"; LIBS="$LIBS $X_LIBS -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+
+@@ -40745,7 +40746,7 @@ if ${ac_cv_lib_Xt_XtToolkitInitialize+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lXt ${X_LIBS} -lX11 $LIBS"
++LIBS="-lXt ${X_LIBS} -lX11 -lxcb -lXau -lXdmcp -lSM -lICE -lbsd $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+
+@@ -40798,7 +40799,7 @@ if test "x${use_X11}" = "xyes"; then
+
+ $as_echo "#define HAVE_X11 1" >>confdefs.h
+
+-  X_LIBS="${X_LIBS} -lX11 -lXt"
++  X_LIBS="${X_LIBS} -lX11  -lxcb -lXt -lXau -lXdmcp -lSM -lICE -lbsd"
+ else
+   if test "x${with_x}" != "xno"; then
+     as_fn_error $? "--with-x=yes (default) and X11 headers/libs are not available" "$LINENO" 5
 @@ -40691,10 +40691,10 @@ $as_echo "$r_cv_has_pangocairo" >&6; }
        else
           xmodlist="${modlist}"
@@ -107,3 +151,18 @@ index 323924c..14ba584 100644
      SEXP object, icon, type, ver, fun;
      object = CAR(args); args = CDR(args);
      icon = CAR(args); args = CDR(args);
+diff --git a/src/modules/X11/Makefile.in b/src/modules/X11/Makefile.in
+index b0c0af4..a04ad2e 100644
+--- a/src/modules/X11/Makefile.in
++++ b/src/modules/X11/Makefile.in
+@@ -17,7 +17,9 @@ include $(top_builddir)/Makeconf
+ ALL_CPPFLAGS = @BITMAP_CPPFLAGS@ $(R_XTRA_CPPFLAGS) $(X_CFLAGS) @CAIROX11_CPPFLAGS@ \
+   -I$(top_srcdir)/src/library/grDevices/src/cairo $(CPPFLAGS) $(DEFS)
+ ALL_CFLAGS = $(ALL_CFLAGS_LO)
+-ALL_X_LIBS = $(X_PRE_LIBS) @CAIROX11_LIBS@ $(X_LIBS) $(X_EXTRA_LIBS)
++CAIRO_X_LIBS = @CAIROX11_LIBS@
++CAIRO_X_LIBS2 := $(CAIRO_X_LIBS:-lX11=-Wl,--whole-archive -lX11 -Wl,--no-whole-archive)
++ALL_X_LIBS = $(X_PRE_LIBS) $(CAIRO_X_LIBS2) $(X_LIBS) $(X_EXTRA_LIBS)
+
+ SOURCES = devX11.c rotated.c rbitmap.c
+ DEPENDS = $(SOURCES:.c=.d)
