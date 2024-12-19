@@ -66,3 +66,13 @@
   kill -15 $pid 2>/dev/null
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
+
+@test "pager" {
+  run R -q -f test-pager.R
+  [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
+}
+
+@test "zip, unzip" {
+  run R -q -f test-zip.R
+  [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
+}
