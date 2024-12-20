@@ -238,6 +238,11 @@ jobs:
 
     steps:
 
+    - name: Clean up old artifacts
+      run: |
+        rm -rf output
+        mkdir output
+
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
@@ -251,8 +256,8 @@ jobs:
         repository: r-hub/R
         token: ${{ secrets.DEPLOY_TOKEN }}
         files: |
-          output/*arm64.deb
-          output/*aarch64.rpm
-          output/*aarch64.tar.gz
+          output/*${{ inputs.rversion }}*arm64.deb
+          output/*${{ inputs.rversion }}*aarch64.rpm
+          output/*${{ inputs.rversion }}*aarch64.tar.gz
         name: "R ${{ inputs.rversion }}"
         tag_name: 'v${{ inputs.rversion }}'
