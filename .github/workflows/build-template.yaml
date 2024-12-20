@@ -229,7 +229,7 @@ jobs:
   deployarm:
     name: deploy (aarch64)
     if: ${{ inputs.deployarm == 'yes' }}
-    runs-on: [self-hosted, linux, ARM64]
+    runs-on: ubuntu-latest
     needs: [ testarm ]
     container:
       image: "ubuntu:22.04"
