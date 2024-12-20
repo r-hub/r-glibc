@@ -86,7 +86,7 @@ ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 
 ```sh
 R_VERSION=4.4.2
-yum install https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-${R_VERSION}-glibc-1-1.$(arch).rpm
+yum install https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-${R_VERSION}-glibc-1-1.$(uname -m).rpm
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ```
 
@@ -95,7 +95,7 @@ ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ```sh
 R_VERSION=4.4.2
 zypper install glibc-locale-base
-zypper install --allow-unsigned-rpm https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-${R_VERSION}-glibc-1-1.$(arch).rpm
+zypper install --allow-unsigned-rpm https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-${R_VERSION}-glibc-1-1.$(uname -m).rpm
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ```
 
@@ -103,7 +103,7 @@ ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 
 ```sh
 R_VERSION=4.4.2
-curl -Ls https://github.com/r-hub/R/releases/download/v${R_VERSION}/r-${R_VERSION}-glibc-$(arch).tar.gz |
+curl -Ls https://github.com/r-hub/R/releases/download/v${R_VERSION}/r-${R_VERSION}-glibc-$(uname -m).tar.gz |
   tar xz -C /
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ```
