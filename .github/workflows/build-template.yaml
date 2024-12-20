@@ -94,7 +94,7 @@ jobs:
         rm -f output/*aarch64* output/*arm64*
         docker compose -f docker-compose-test.yaml build
       env:
-        COMPOSE_PARALLEL_LIMIT: 1
+        COMPOSE_PARALLEL_LIMIT: 4
         REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
         REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
         REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
@@ -221,7 +221,7 @@ jobs:
         docker compose -f docker-compose-test.yaml build
       env:
         DOCKER_DEFAULT_PLATFORM: linux/arm64
-        COMPOSE_PARALLEL_LIMIT: 1
+        COMPOSE_PARALLEL_LIMIT: 4
         REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
         REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
         REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
