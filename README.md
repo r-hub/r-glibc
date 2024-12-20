@@ -29,6 +29,21 @@ package installed. Install it with <code>zypper install
 glibc-locale-base</code>.
 </small>
 
+## Features
+
+* Most optional capabilities are included:
+  jpeg • png • tiff • X11 • cledit • iconv • NLS • Rprof • cairo •
+  ICU • long double • libcurl.
+* Embdded external software:
+  bzlib 1.0.6 • ICU 60.2 • libcurl 8.11.0 • libdeflate 1.23 •
+  OpenBLAS 0.2.20 • OpenSSL 1.1.1 • PCRE 10.31 • readline 7.0 •
+  TRE 0.8.0 • xz 5.2.2 • zlib 1.2.11.
+* X11 support.
+* Cairo and Pango support.
+* Includes static binaries for some external tools: `less`, `zip`, `unzip`.
+* All builds are patched for the RDS deserialization vulnerability,
+  [CVE-2024-27322](https://www.cve.org/CVERecord?id=CVE-2024-27322).
+
 ## Architectures
 
 We have `x86_64` and `aarch64` builds.
@@ -50,12 +65,6 @@ We have `x86_64` and `aarch64` builds.
 
 ## Known limitations
 
-* No X11 support ([#18](https://github.com/r-hub/r-glibc/issues/18)).
-* `bmp()`, `png()`, `tiff()`, `jpeg()` default to `type = "Xlib"` so they
-  don't work without an explicit `type = "cairo"` argument ([#15](
-  https://github.com/r-hub/r-glibc/issues/15)).
-* No built-in libdeflate support ([#12](
-  https://github.com/r-hub/r-glibc/issues/12)).
 * The built-in fontconfig library might not work with the system's
   fonts ([#19](https://github.com/r-hub/r-glibc/issues/19)).
 * The included system libraries are relatively old ([#20](
