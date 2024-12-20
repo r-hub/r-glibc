@@ -189,7 +189,7 @@ jobs:
 
   testarm:
     name: test (aarch64)
-    runs-on: [self-hosted, linux, ARM64]
+    runs-on: ubuntu-latest
     needs: [ buildarm ]
     container:
       image: "ubuntu:22.04"
@@ -198,10 +198,10 @@ jobs:
 
     steps:
 
-    - name: Install Docker, git
+    - name: Install Docker
       run: |
         apt-get update && apt-get install -y \
-          docker.io docker-compose-v2 docker-buildx git
+          docker.io docker-compose-v2 docker-buildx
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -220,6 +220,7 @@ jobs:
         rm -f output/*x86_64* output/*amd64*
         docker compose -f docker-compose-test.yaml build
       env:
+        DOCKER_DEFAULT_PLATFORM: linux/arm64
         COMPOSE_PARALLEL_LIMIT: 1
         REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
         REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
