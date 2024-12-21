@@ -213,10 +213,6 @@ jobs:
     name: test (aarch64)
     runs-on: ubuntu-latest
     needs: [ buildarm ]
-    container:
-      image: "ubuntu:22.04"
-      volumes:
-        - ${{ github.workspace }}:/${{ github.workspace }}
 
     steps:
 
@@ -281,10 +277,6 @@ jobs:
     if: ${{ inputs.deployarm == 'yes' }}
     runs-on: ubuntu-latest
     needs: [ testarm ]
-    container:
-      image: "ubuntu:22.04"
-      volumes:
-        - ${{ github.workspace }}:/${{ github.workspace }}
 
     steps:
 
