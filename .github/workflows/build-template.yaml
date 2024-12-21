@@ -209,34 +209,38 @@ jobs:
         name: ${{ inputs.rversion }}-aarch64-rpm
         path: output/*.rpm
 
+  testsetuparm:
+    name: test setup (aarch64)
+    runs-on: ubuntu-latest
+    needs: [ buildarm ]
+    outputs:
+      platforms: ${{ steps.setup-platforms.outputs.platforms }}
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 10
+
+    - name: Set up test platforms
+      id: setup-platforms
+      run: |
+        platforms=$(yq < docker-compose-test.yaml '.services | keys[]' |
+                    jq -nRc '[inputs]')
+        echo "platforms=$platforms" >> $GITHUB_OUTPUT
+        cat $GITHUB_OUTPUT
+
   testarm:
     name: test (aarch64)
     runs-on: ubuntu-latest
-    needs: [ buildarm ]
+    needs: [ testsetuparm ]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJson(needs.testsetuparm.outputs.platforms) }}
 
     steps:
-
-    - name: "Clean up"
-      run: |
-        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup \
-          /usr/local/share/boost \
-          $AGENT_TOOLSDIRECTORY $CONDA $VCPKG_INSTALLATION_ROOT \
-          $JAVA_HOME_8_X64 $JAVA_HOME_11_X64 $JAVA_HOME_17_X64 $JAVA_HOME_21_X64 \
-          $CHROMEWEBDRIVER $EDGEWEBDRIVER $GECKOWEBDRIVER $SELENIUM_JAR_PATH \
-          $ANDROID_HOME
-        sudo apt-get remove -y '^aspnetcore-.*' || echo "::warning::The command [sudo apt-get remove -y '^aspnetcore-.*'] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^dotnet-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^dotnet-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^llvm-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^llvm-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y 'php.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y 'php.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^mongodb-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^mongodb-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^mysql-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^mysql-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri --fix-missing || echo "::warning::The command [sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y google-cloud-sdk --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-sdk --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y google-cloud-cli --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-cli --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get autoremove -y || echo "::warning::The command [sudo apt-get autoremove -y] failed to complete successfully. Proceeding..."
-        sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
-        df -h /
-        docker buildx du
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -257,10 +261,10 @@ jobs:
     - name: Test
       run: |
         rm -f output/*x86_64* output/*amd64*
-        docker compose -f docker-compose-test.yaml build
+        docker compose -f docker-compose-test.yaml build ${PLATFORM}
       env:
+        PLATFORM: ${{ matrix.platform }}
         DOCKER_DEFAULT_PLATFORM: linux/arm64
-        COMPOSE_PARALLEL_LIMIT: 4
         REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
         REDHAT_ORG_RHEL9: ${{ secrets.REDHAT_ORG }}
         REDHAT_ACTIVATION_KEY_RHEL8: ${{ secrets.REDHAT_ACTIVATION_KEY_RHEL8 }}
