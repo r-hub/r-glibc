@@ -252,8 +252,7 @@ jobs:
 
     - name: Install QEMU
       run: |
-        docker run --privileged --rm tonistiigi/binfmt:qemu-v8.1.5 \
-          --install arm64
+        docker run --privileged --rm tonistiigi/binfmt --install all
 
     - name: Test
       run: |
