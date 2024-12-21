@@ -215,6 +215,11 @@ jobs:
         path: output
         merge-multiple: true
 
+    - name: Install QEMU
+      run: |
+        docker run --privileged --rm tonistiigi/binfmt:qemu-v8.1.5 \
+          --install arm64
+
     - name: Test
       run: |
         rm -f output/*x86_64* output/*amd64*
