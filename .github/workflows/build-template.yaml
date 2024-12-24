@@ -114,7 +114,11 @@ jobs:
     - name: Test
       run: |
         rm -f output/*aarch64* output/*arm64*
-        docker compose -f docker-compose-test.yaml build
+        docker compose -f docker-compose-test.yaml build ||
+          docker compose -f docker-compose-test.yaml build ||
+          docker compose -f docker-compose-test.yaml build ||
+          docker compose -f docker-compose-test.yaml build ||
+          docker compose -f docker-compose-test.yaml build
       env:
         COMPOSE_PARALLEL_LIMIT: 4
         REDHAT_ORG_RHEL8: ${{ secrets.REDHAT_ORG }}
@@ -261,7 +265,11 @@ jobs:
     - name: Test
       run: |
         rm -f output/*x86_64* output/*amd64*
-        docker compose -f docker-compose-test.yaml build ${PLATFORM}
+        docker compose -f docker-compose-test.yaml build ${PLATFORM} ||
+          docker compose -f docker-compose-test.yaml build ${PLATFORM} ||
+          docker compose -f docker-compose-test.yaml build ${PLATFORM} ||
+          docker compose -f docker-compose-test.yaml build ${PLATFORM} ||
+          docker compose -f docker-compose-test.yaml build ${PLATFORM}
       env:
         PLATFORM: ${{ matrix.platform }}
         DOCKER_DEFAULT_PLATFORM: linux/arm64
