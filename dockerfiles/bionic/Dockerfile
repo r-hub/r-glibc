@@ -13,10 +13,18 @@ ENV TZ=UTC
 
 RUN apt-get update && \
     apt-get install -y libreadline-dev zlib1g-dev libbz2-dev \
-    liblzma-dev libpcre2-dev libssl-dev libopenblas-dev \
+    liblzma-dev libpcre2-dev libopenblas-dev \
     libjpeg-turbo8-dev libpng-dev libtiff-dev libicu-dev \
     libcairo-dev libffi-dev libpango1.0-dev libthai-dev \
     libdatrie-dev texinfo libxt-dev uuid-dev libbsd-dev
+
+# use a newer openssl, for security
+RUN curl -LO https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
+RUN tar xzf openssl-3.4.1.tar.gz && rm openssl-3.4.1.tar.gz
+RUN cd openssl-* && \
+    CFLAGS="-fPIC -static" ./config -fPIC no-shared --prefix=/opt/r-lib && \
+    make && \
+    make install_sw
 
 # roll our own libcurl, the original has way too many depe
 RUN curl -LO https://curl.haxx.se/download/curl-8.11.0.tar.gz
@@ -24,14 +32,12 @@ RUN tar xzf curl-*.tar.gz && rm curl-*.tar.gz
 RUN cd curl-* && \
     LDFLAGS="-L/opt/r-lib/lib" \
     ./configure --prefix=/opt/r-lib \
-      --enable-static --disable-shared --with-openssl \
+      --enable-static --disable-shared --with-openssl=/opt/r-lib \
       --without-libpsl --without-brotli; \
     make && \
     make install
 
 # Need to rebuild
-# - openssl w/ a patch from
-#   https://github.com/Romain-Geissler-1A/openssl/commit/37748d7e6e24247729812b9b31f5ae697a46d2a6
 # - libtiff with
 # --- tiff-4.0.9/debian/rules	2018-04-15 18:13:42.000000000 +0000
 # +++ tiff-4.0.9-new/debian/rules	2024-11-27 16:25:15.920000132 +0000
@@ -47,9 +53,6 @@ RUN cd curl-* && \
 #   # Variables used by cdbs
 RUN export ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "arm64" ]; then \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl-dev_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libssl1.1_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/openssl_1.1.1-1ubuntu2.1.18.04.23_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5-dev_4.0.9-5ubuntu0.10_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libtiff5_4.0.9-5ubuntu0.10_$ARCH.deb && \
@@ -73,7 +76,7 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxext-dev_1.3.3-1_$ARCH.deb && \
       apt-get update && \
       apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
-      dpkg -i ./libssl-dev* ./libssl1* ./openssl* ./libtiff* libfreetype* \
+      dpkg -i ./libtiff* libfreetype* \
         libpng* libpixman* libpango* libglib* libgraphite2* libxdmcp* \
         libxt* libsm* libx11* libbsd* libxrender* libxext* && \
       rm *.deb; \
@@ -144,7 +147,6 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr/ -name libbz2.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name liblzma.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name "libpcre*.a"` /opt/r-lib/lib/ && \
-    cp `find /usr/ -name libssl.a` `find /usr/ -name libcrypto.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libopenblas.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libtinfo.a` /opt/r-lib/lib/ && \
     cp `find /usr/ -name libjpeg.a` /opt/r-lib/lib/ && \
