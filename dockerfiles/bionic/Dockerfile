@@ -18,11 +18,22 @@ RUN apt-get update && \
     libcairo-dev libffi-dev libpango1.0-dev libthai-dev \
     libdatrie-dev texinfo libxt-dev uuid-dev libbsd-dev
 
+# this is neeeed for openssl to compile on x86_64
+RUN export ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgcc-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
+      apt-get update && \
+      dpkg -i ./libgcc* || true && \
+      rm *.deb && \
+      apt-get -f -y install && \
+      dpkg -s libgcc-7-dev >/dev/null 2>/dev/null; \
+    fi
+
 # use a newer openssl, for security
 RUN curl -LO https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
 RUN tar xzf openssl-3.4.1.tar.gz && rm openssl-3.4.1.tar.gz
 RUN cd openssl-* && \
-    CFLAGS="-fPIC -static" ./config -fPIC no-shared --prefix=/opt/r-lib && \
+    CFLAGS="-fPIC" ./config -fPIC no-shared --prefix=/opt/r-lib && \
     make && \
     make install_sw
 
@@ -109,7 +120,6 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libexpat1_2.2.5-3ubuntu0.9_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2-dev_1.15.10-2ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libcairo2_1.15.10-2ubuntu0.1_$ARCH.deb && \
-      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgcc-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgfortran-7-dev_7.5.0-3ubuntu1.18.04_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libgraphite2-dev_1.3.11-2_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libpango1.0-dev_1.40.14-1ubuntu0.1_$ARCH.deb && \
@@ -128,7 +138,7 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libbsd-dev_0.8.7-1ubuntu0.1_$ARCH.deb && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
         libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* \
-        libgcc* libgfortran* libgraphite2* libpango* libharfbuzz* libdatrie* libpcre3* \
+        libgfortran* libgraphite2* libpango* libharfbuzz* libdatrie* libpcre3* \
         libglib* libsm* libxext* libx11* libxt* libice* libxrender* libxcb1* libxdmcp* \
         libbsd* && \
       rm *.deb; \
