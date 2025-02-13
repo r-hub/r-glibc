@@ -36,7 +36,7 @@ glibc-locale-base</code>.
   ICU • long double • libcurl.
 * Embdded external software:
   bzlib 1.0.6 • ICU 60.2 • libcurl 8.11.0 • libdeflate 1.23 •
-  OpenBLAS 0.2.20 • OpenSSL 1.1.1 • PCRE 10.31 • readline 7.0 •
+  OpenBLAS 0.2.20 • OpenSSL 3.4.1 • PCRE 10.31 • readline 7.0 •
   TRE 0.8.0 • xz 5.2.2 • zlib 1.2.11.
 * X11 support.
 * Cairo and Pango support.
