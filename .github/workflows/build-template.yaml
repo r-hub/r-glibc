@@ -156,11 +156,7 @@ jobs:
   buildarm:
     name: build (aarch64)
     if: ${{ inputs.buildarm == 'yes' }}
-    runs-on: [self-hosted, linux, ARM64]
-    container:
-      image: "ubuntu:22.04"
-      volumes:
-        - ${{ github.workspace }}:/${{ github.workspace }}
+    runs-on: ubuntu-22.04-arm
     env:
       R_VERSION: '${{ inputs.rversion }}'
 
@@ -236,7 +232,7 @@ jobs:
 
   testarm:
     name: test (aarch64)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-arm
     needs: [ testsetuparm ]
 
     strategy:
@@ -257,10 +253,6 @@ jobs:
         pattern: ${{ inputs.rversion }}-aarch64-*
         path: output
         merge-multiple: true
-
-    - name: Install QEMU
-      run: |
-        docker run --privileged --rm tonistiigi/binfmt --install all
 
     - name: Test
       run: |
