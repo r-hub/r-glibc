@@ -35,7 +35,10 @@ RUN tar xzf openssl-3.4.1.tar.gz && rm openssl-3.4.1.tar.gz
 RUN cd openssl-* && \
     CFLAGS="-fPIC" ./config -fPIC no-shared --prefix=/opt/r-lib && \
     make && \
-    make install_sw && \
+    make install_sw
+
+# not all R versions will find libssl.a in /opt/r-lib/lib64, move it
+RUN mkdir -p /opt/r-lib/lib && \
     cp /opt/r-lib/lib64/*.a /opt/r-lib/lib/ || true
 
 # roll our own libcurl, the original has way too many depe
