@@ -33,6 +33,8 @@ jobs:
       with:
         fetch-depth: 10
 
+    - uses: r-hub/actions/debug-shell@v1
+
     - name: Build
       env:
         TARGET: build
