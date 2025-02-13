@@ -24,9 +24,9 @@ following platforms:
 
 <small>
 * On OpenSUSE and SUSE Linux Enterprise systems R packages that use the
-ISO Latin 1 character encoding need the <code>glibc-locale-base</code>
-package installed. Install it with <code>zypper install
-glibc-locale-base</code>.
+ISO Latin 1 character encoding need the
+<code><span>glibc-locale-base</span></code> package installed.
+Install it with <code><span>zypper install glibc-locale-base</span></code>.
 </small>
 
 ## Features
