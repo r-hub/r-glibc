@@ -50,7 +50,7 @@ We have `x86_64` and `aarch64` builds.
 
 ## Supported R versions
 
-* R 3.6.0 to R 4.4.2.
+* R 3.6.0 to R 4.4.3.
 * Daily development snapshot (`devel`).
 * Daily snapshot of the next (patched, beta, alpha or RC) version of
   R (`next`).
@@ -60,7 +60,7 @@ We have `x86_64` and `aarch64` builds.
   • `4.1.0` • `4.1.1` • `4.1.2` • `4.1.3`
   • `4.2.0` • `4.2.1` • `4.2.2` • `4.2.3`
   • `4.3.0` • `4.3.1` • `4.3.2` • `4.3.3`
-  • `4.4.0` • `4.4.1` • `4.4.2`
+  • `4.4.0` • `4.4.1` • `4.4.2` • `4.4.3`
   • `next` • `devel`.
 
 ## Known limitations
@@ -82,10 +82,10 @@ rig repository if you would like to install these builds with rig.
 
 ### Debian or Ubuntu based platforms
 
-Replace `4.4.2` with the R version you want to install.
+Replace `4.4.3` with the R version you want to install.
 
 ```sh
-R_VERSION=4.4.2
+R_VERSION=4.4.3
 curl -LO https://github.com/r-hub/R/releases/download/v${R_VERSION}/r-${R_VERSION}-glibc_1_$(dpkg --print-architecture).deb
 dpkg -i r-${R_VERSION}-glibc_1_$(dpkg --print-architecture).deb
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
@@ -94,7 +94,7 @@ ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ### Fedora, RHEL or other RPM based distributions
 
 ```sh
-R_VERSION=4.4.2
+R_VERSION=4.4.3
 yum install https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-${R_VERSION}-glibc-1-1.$(uname -m).rpm
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ```
@@ -102,7 +102,7 @@ ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ### OpenSUSE
 
 ```sh
-R_VERSION=4.4.2
+R_VERSION=4.4.3
 zypper install glibc-locale-base
 zypper install --allow-unsigned-rpm https://github.com/r-hub/R/releases/download/v${R_VERSION}/R-${R_VERSION}-glibc-1-1.$(uname -m).rpm
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
@@ -111,7 +111,7 @@ ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
 ### Other GNU libc Linux platforms
 
 ```sh
-R_VERSION=4.4.2
+R_VERSION=4.4.3
 curl -Ls https://github.com/r-hub/R/releases/download/v${R_VERSION}/r-${R_VERSION}-glibc-$(uname -m).tar.gz |
   tar xz -C /
 ln -s /opt/R/${R_VERSION}-glibc/bin/R /usr/local/bin
