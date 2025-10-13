@@ -55,19 +55,33 @@ services:
       args:
         CONTAINER: almalinux:9
 
+  almalinux-10:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: almalinux:10
+
   rockyinux-8:
     build:
       context: .
       dockerfile: dockerfiles/test/Dockerfile
       args:
-        CONTAINER: rockylinux:8
+        CONTAINER: rockylinux/rockylinux:8
 
   rockylinux-9:
     build:
       context: .
       dockerfile: dockerfiles/test/Dockerfile
       args:
-        CONTAINER: rockylinux:9
+        CONTAINER: rockylinux/rockylinux:9
+
+  rockylinux-10:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: rockylinux/rockylinux:10
 
   # rhel-8:
   #   build:
@@ -118,6 +132,13 @@ services:
         CONTAINER: fedora:40
 
   fedora-41:
+    build:
+      context: .
+      dockerfile: dockerfiles/test/Dockerfile
+      args:
+        CONTAINER: fedora:41
+
+  fedora-42:
     build:
       context: .
       dockerfile: dockerfiles/test/Dockerfile
