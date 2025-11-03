@@ -142,15 +142,22 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxcb1-dev_1.13-2.ubuntu18.04_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxdmcp-dev_1.1.2-3_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libbsd-dev_0.8.7-1ubuntu0.1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxcursor-dev_1.1.15-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxfixes-dev_5.0.3-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/uuid-dev_2.31.1-0.4ubuntu3.7_$ARCH.deb && \
+      apt-get update && apt-get install -y libxfixes-dev libxcursor-dev && \
       dpkg -i ./zlib* libpixman* libfreetype6* libtiff* libjbig* \
         libjpeg* liblzma* libpng* libfontconfig* libexpat* libcairo* \
         libgfortran* libgraphite2* libpango* libharfbuzz* libdatrie* libpcre3* \
         libglib* libsm* libxext* libx11* libxt* libice* libxrender* libxcb1* libxdmcp* \
-        libbsd* && \
+        libbsd* libxcursor* libxfixes* uuid* && \
       rm *.deb; \
     fi
 
-RUN apt-get update && apt-get install -y libxcursor-dev
+RUN export ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+      apt-get update && apt-get install -y libxcursor-dev ; \
+    fi
 
 RUN mkdir -p /opt/r-lib/lib && \
     export ARCH=$(dpkg --print-architecture) && \
