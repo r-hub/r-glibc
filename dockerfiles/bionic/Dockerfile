@@ -89,11 +89,13 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libbsd-dev_0.8.7-1ubuntu0.1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxrender-dev_0.9.10-1_$ARCH.deb && \
       curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxext-dev_1.3.3-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxfixes3_5.0.3-1_$ARCH.deb && \
+      curl -LO https://github.com/r-hub/r-glibc/releases/download/bionic/libxfixes-dev_5.0.3-1_$ARCH.deb && \
       apt-get update && \
-      apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 && \
+      apt-get install -y libjbig-dev libjbig0 libjpeg-dev libjpeg8 libxfixes-dev && \
       dpkg -i ./libtiff* libfreetype* \
         libpng* libpixman* libpango* libglib* libgraphite2* libxdmcp* \
-        libxt* libsm* libx11* libbsd* libxrender* libxext* && \
+        libxt* libsm* libx11* libbsd* libxrender* libxext* libxfixes* && \
       rm *.deb; \
     fi
 
@@ -148,6 +150,8 @@ RUN export ARCH=$(dpkg --print-architecture) && \
       rm *.deb; \
     fi
 
+RUN apt-get update && apt-get install -y libxcursor-dev
+
 RUN mkdir -p /opt/r-lib/lib && \
     export ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "amd64" ]; then \
@@ -197,8 +201,9 @@ RUN mkdir -p /opt/r-lib/lib && \
     cp `find /usr -name libXau.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libXdmcp.a` /opt/r-lib/lib/ && \
     cp `find /usr -name libXrender.a` /opt/r-lib/lib/ && \
-    cp `find /usr -name libXext.a` /opt/r-lib/lib/
-
+    cp `find /usr -name libXext.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libXcursor.a` /opt/r-lib/lib/ && \
+    cp `find /usr -name libXfixes.a` /opt/r-lib/lib/
 
 ARG R_VERSION
 
@@ -301,6 +306,13 @@ RUN cd R-${R_VERSION} && make
 RUN rm /opt/R/${R_VERSION}-glibc/lib/R/include \
     /opt/R/${R_VERSION}-glibc/lib/R/lib
 RUN cd R-${R_VERSION} && make install
+
+# this is needed for wayland (?), maybe elsewhere as well
+# https://github.com/r-hub/r-glibc/issues/35
+RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/lib && \
+    cd /opt/R/${R_VERSION}-glibc/lib/R/lib && \
+    ln -s ../modules/R_X11.so libXcursor.so.1 && \
+    ln -s libXcursor.so.1 libXcursor.so
 
 # embed openblas static lib
 RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R/lib && \

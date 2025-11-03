@@ -58,7 +58,17 @@
 }
 
 @test "X11" {
-  run xvfb-run -- R -q -f test-x11.R
+  if command -v xvfb-run; then
+      run xvfb-run -- R -q -f test-x11.R
+  else
+      # SUSE does not have xvfb-run, but has Xvfb
+      Xvfb :1 -screen 0 1280x1024x24 &
+      pid=$!
+      trap "kill -15 $pid || kill -9 $pid" EXIT
+      export DISPLAY=:1
+      run R -q -f test-x11.R
+      kill -15 $pid 2>/dev/null
+  fi
   [ "$status" -eq 0 ] || echo "$output" && [ "$status" -eq 0 ]
 }
 
