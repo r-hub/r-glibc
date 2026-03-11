@@ -261,13 +261,14 @@ RUN mkdir -p /opt/R/${R_VERSION}-glibc/lib/R && \
     ln -s /opt/r-lib/lib /opt/R/${R_VERSION}-glibc/lib/R/ && \
     ln -s /opt/r-lib/include /opt/R/${R_VERSION}-glibc/lib/R/
 
+# HTTP 1.1 to avoid "curl: (16) Error in the HTTP2 framing layer"
 RUN if [ "${R_VERSION}" = "devel" ]; then \
-      curl -LO https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz; \
+      curl -LO --http1.1 https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz; \
     elif [ "${R_VERSION}" = "next" ]; then \
-      curl -LO https://cran.rstudio.com/src/base-prerelease/R-patched.tar.gz; \
+      curl -LO --http1.1 https://cran.rstudio.com/src/base-prerelease/R-patched.tar.gz; \
       mv R-patched.tar.gz R-next.tar.gz; \
     else \
-      curl -LO https://cran.r-project.org/src/base/R-${R_VERSION%*.*.*}/R-${R_VERSION}.tar.gz; \
+      curl -LO --http1.1 https://cran.r-project.org/src/base/R-${R_VERSION%*.*.*}/R-${R_VERSION}.tar.gz; \
     fi
 RUN tar xzf R-${R_VERSION}.tar.gz
 RUN if [ -e R-patched ]; then mv R-patched R-next; fi
@@ -277,10 +278,11 @@ RUN if [ -e R-rc ]; then mv R-rc R-next; fi
 RUN if [ -e R-prerelease ]; then mv R-prerelease R-next; fi
 RUN if [ -e R-pre ]; then mv R-pre R-next; fi
 
+COPY dockerfiles/bionic/R-${R_VERSION}.patch .
+
 FROM download AS patch
 
 ENV R_VERSION=${R_VERSION}
-COPY dockerfiles/bionic/R-${R_VERSION}.patch .
 RUN cd R-${R_VERSION} && patch -p1 < ../R-${R_VERSION}.patch
 RUN echo "TERMINFO=\${TERMINFO-/opt/R/${R_VERSION}-glibc/lib/R/terminfo}" \
     >> R-${R_VERSION}/etc/Renviron.in
