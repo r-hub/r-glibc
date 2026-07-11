@@ -29,7 +29,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 10
 
@@ -55,19 +55,19 @@ jobs:
         docker compose up bionic
 
     - name: Upload tar.gz package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.rversion }}-x86_64-targz
         path: output/*.tar.gz
 
     - name: Upload DEB package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.rversion }}-x86_64-deb
         path: output/*.deb
 
     - name: Upload rpm package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.rversion }}-x86_64-rpm
         path: output/*.rpm
@@ -102,12 +102,12 @@ jobs:
         docker buildx du
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 10
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: ${{ inputs.rversion }}-x86_64-*
         path: output
@@ -137,14 +137,14 @@ jobs:
     steps:
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: ${{ inputs.rversion }}-x86_64-*
         path: output
         merge-multiple: true
 
     - name: Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         repository: r-hub/R
         token: ${{ secrets.DEPLOY_TOKEN }}
@@ -165,7 +165,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 10
 
@@ -190,19 +190,19 @@ jobs:
         docker compose up bionic
 
     - name: Upload tar.gz package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.rversion }}-aarch64-targz
         path: output/*.tar.gz
 
     - name: Upload DEB package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.rversion }}-aarch64-deb
         path: output/*.deb
 
     - name: Upload rpm package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.rversion }}-aarch64-rpm
         path: output/*.rpm
@@ -216,7 +216,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 10
 
@@ -241,12 +241,12 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 10
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: ${{ inputs.rversion }}-aarch64-*
         path: output
@@ -282,14 +282,14 @@ jobs:
         mkdir output
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: ${{ inputs.rversion }}-aarch64-*
         path: output
         merge-multiple: true
 
     - name: Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         repository: r-hub/R
         token: ${{ secrets.DEPLOY_TOKEN }}
