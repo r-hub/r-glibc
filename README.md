@@ -14,7 +14,7 @@ These include most systems in use today. We regularly test it on these
 following platforms:
 
 * Ubuntu Linux 18.04, 20.04, 22.04, 24.04.
-* Debian Linux 11, 12,
+* Debian Linux 12,
 * AlmaLinux 8, 9,
 * Rocky Linux 8, 9,
 * RedHat Enterprise Linux 8, 9,
